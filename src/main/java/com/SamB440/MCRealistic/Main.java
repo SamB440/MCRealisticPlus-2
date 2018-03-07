@@ -144,6 +144,7 @@ public class Main extends JavaPlugin {
 		ignore.add(Material.LOG_2);
 		BlockListener.addBlocks(ignore);
 		Metrics metrics = new Metrics(this);
+		log.info(c + "Started metrics. Opt-out using global bStats config.");
         for(String s : getConfig().getStringList("Worlds"))
         {
         	World w = Bukkit.getWorld(s);
