@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ ******************************************************************************/
 package com.SamB440.MCRealistic.listeners;
 
 import java.util.ArrayList;
@@ -33,6 +38,8 @@ public class BlockListener implements Listener {
 		Block block = bpe.getBlock();
 		if(worlds.contains(p.getWorld())) 
 		{
+	        int CurrentFatigue = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
+	        getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue));
 			if (getConfig().getBoolean("Server.Building.Realistic_Building") && p.getGameMode().equals(GameMode.SURVIVAL)) 
 			{
 	        	if (p.getInventory().getItemInMainHand().hasItemMeta()) {
@@ -44,20 +51,17 @@ public class BlockListener implements Listener {
 	        	} else if(bpe.getBlock().getLocation().subtract(1.0, 0.0, 0.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().subtract(0.0, 0.0, 1.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().add(1.0, 0.0, 0.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().add(0.0, 0.0, 1.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().add(0.0, 1.0, 0.0).getBlock().getType().equals(Material.LOG)) {
 	        		return;
 	        	}
-	        	if(!block.getType().equals(Material.SIGN)) 
-	        	{
-	    			Location loc = block.getLocation();
-	    			loc.setX(loc.getX() + 0.5);
-	    			loc.setZ(loc.getZ() + 0.5);
-	    			loc.getWorld().spawnFallingBlock(loc, block.getType(), block.getData());
-	    			block.setType(Material.AIR);
-	        	}
+	    		Location loc = block.getLocation();
+	    		loc.setX(loc.getX() + 0.5);
+	    		loc.setZ(loc.getZ() + 0.5);
+	    		loc.getWorld().spawnFallingBlock(loc, block.getType(), block.getData());
+	    		block.setType(Material.AIR);
 			}
         	if (getConfig().getInt("Players.Fatigue." + bpe.getPlayer().getUniqueId()) >= 250 && block.getType() != Material.BED && block.getType() != Material.BED_BLOCK) 
         	{
         		TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Too Tired")));
         		bpe.setCancelled(true);
-        	}
+        	}	
 		}
 	}
 	@EventHandler

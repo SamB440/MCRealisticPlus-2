@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ ******************************************************************************/
 package com.SamB440.MCRealistic.listeners;
 
 import java.util.ArrayList;
@@ -13,7 +18,6 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -27,7 +31,7 @@ public class MoveListener implements Listener {
 	ArrayList<UUID> burn = Main.getInstance().getBurning();
 	
 	@SuppressWarnings("deprecation")
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler
 	public void PlayerMove(PlayerMoveEvent pme) {
 		Player p = pme.getPlayer();
 		if(worlds.contains(p.getWorld())) {

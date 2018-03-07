@@ -1,24 +1,8 @@
-/*MIT License
-
-Copyright (c) 2018 Sam
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.*/
+/*******************************************************************************
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ ******************************************************************************/
 package com.SamB440.MCRealistic;
 
 import java.io.File;
@@ -30,6 +14,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -44,7 +29,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.SamB440.MCRealistic.utils.TitleManager;
+import com.SamB440.MCRealistic.commands.Fatigue;
+import com.SamB440.MCRealistic.commands.Thirst;
 import com.SamB440.MCRealistic.listeners.BlockListener;
+import com.SamB440.MCRealistic.listeners.ConsumeListener;
 import com.SamB440.MCRealistic.listeners.InteractListener;
 import com.SamB440.MCRealistic.listeners.JoinListener;
 import com.SamB440.MCRealistic.listeners.MoveListener;
@@ -61,6 +49,8 @@ public class Main extends JavaPlugin {
 	
 	private ArrayList<World> worlds = new ArrayList<World>();
 	private ArrayList<UUID> burn = new ArrayList<UUID>();
+	private ArrayList<Player> disease = new ArrayList<Player>();
+	private ArrayList<Player> cold = new ArrayList<Player>();
 	
 	public void onEnable()
 	{
@@ -76,6 +66,7 @@ public class Main extends JavaPlugin {
 		createConfig();
 		registerListeners();
 		registerRecipes();
+		registerCommands();
 		startTasks();
 		ArrayList<String> firstnames = new ArrayList<String>();
         firstnames.add("Mark");
@@ -170,6 +161,7 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new ProjectileListener(), this);
 		pm.registerEvents(new BlockListener(), this);
 		pm.registerEvents(new MoveListener(), this);
+		pm.registerEvents(new ConsumeListener(), this);
 	}
 	private void createConfig()
 	{
@@ -251,6 +243,11 @@ public class Main extends JavaPlugin {
     		saveConfig();
     		System.out.println(c + "Created & saved config!");
     	}
+	}
+	private void registerCommands()
+	{
+		getCommand("thirst").setExecutor(new Thirst());
+		getCommand("fatigue").setExecutor(new Fatigue());
 	}
 	@SuppressWarnings("deprecation")
 	private void registerRecipes()
@@ -372,10 +369,52 @@ public class Main extends JavaPlugin {
                 }
             }
         }, 0, 600);
+	    Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() 
+	    {
+	    	@Override
+	        public void run() {
+	    		for (Player pl : Bukkit.getOnlinePlayers()) 
+	    		{
+	    			if (getConfig().getBoolean("Server.Player.Thirst.Enabled") && !(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR)))
+	    			{
+	    				int CurrentThirst = getConfig().getInt("Players.Thirst." + pl.getUniqueId());
+	    				if (CurrentThirst <= 100 && CurrentThirst > 0) 
+	    				{
+	    					getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
+	    					pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
+	    					TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
+    						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
+	    				}
+	    				if (CurrentThirst >= 200) 
+	    				{
+    						pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Really Thirsty")));
+    						TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Really Thirsty")));
+    						pl.damage(3.0);
+    						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
+    						pl.addPotionEffect((new PotionEffect(PotionEffectType.BLINDNESS, 10, 10)));
+    						int CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
+    						getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 20));
+	    				}
+	    				if (CurrentThirst != 0) continue;
+	    				getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
+	    				pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
+	    				TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
+	    			}
+	    		}
+	    	}
+	    }, 0, getConfig().getInt("Server.Player.Thirst.Interval"));
 	}
 	public ArrayList<UUID> getBurning()
 	{
 		return burn;
+	}
+	public ArrayList<Player> getDiseases()
+	{
+		return disease;
+	}
+	public ArrayList<Player> getColds()
+	{
+		return cold;
 	}
 	private List<Block> getNearbyBlocks(Location location, int radius) 
 	{
