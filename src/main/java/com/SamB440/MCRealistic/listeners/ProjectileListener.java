@@ -36,7 +36,7 @@ public class ProjectileListener implements Listener {
 		{
 			if (getConfig().getBoolean("Server.Player.Allow Enchanted Arrow") && p.getType() == EntityType.ARROW && p.getFireTicks() > 0) 
 			{
-				if(p.getWorld().getBlockAt(p.getLocation()).getType() != null || p.getWorld().getBlockAt(p.getLocation()).getType().equals(Material.AIR)) p.getWorld().getBlockAt(p.getLocation()).setType(Material.FIRE);
+				if(p.getWorld().getBlockAt(p.getLocation()).getType() == null || p.getWorld().getBlockAt(p.getLocation()).getType().equals(Material.AIR)) p.getWorld().getBlockAt(p.getLocation()).setType(Material.FIRE);
 			}
     	}
     }

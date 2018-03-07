@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -263,7 +265,7 @@ public class Main extends JavaPlugin {
 		medicinemeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"));
 		medicine.setItemMeta(medicinemeta);
 		
-		ShapedRecipe medicinecraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName()), medicine);
+		ShapedRecipe medicinecraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-medicine"), medicine);
 			medicinecraft.shape(
 				"   ",
 				" B ",
@@ -280,7 +282,7 @@ public class Main extends JavaPlugin {
 		chocolatemilkmeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to gain Speed II."));
 		chocolatemilk.setItemMeta(chocolatemilkmeta);
 		
-		ShapedRecipe chocolatemilkcraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName()), chocolatemilk);
+		ShapedRecipe chocolatemilkcraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-chocolate_milk"), chocolatemilk);
 			chocolatemilkcraft.shape(
 			    "   ",
 			    "CBC",
@@ -295,7 +297,7 @@ public class Main extends JavaPlugin {
 		bm.setDisplayName(ChatColor.DARK_AQUA + "Bandage");
 	    bandage.setItemMeta(bm);
 	    
-	    ShapedRecipe BandageRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName()), bandage);
+	    ShapedRecipe BandageRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-bandage"), bandage);
 	    BandageRecipe.shape(
 	    		"   ", 
 	    		" B ", 
@@ -307,6 +309,9 @@ public class Main extends JavaPlugin {
 	}
 	private void startTasks()
 	{
+		/*
+		 * TORCH FIRE
+		 */
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
         {
             @Override
@@ -319,15 +324,20 @@ public class Main extends JavaPlugin {
                 }
             }
         }, 0L, 20L);
+        /*
+         * FATIGUE
+         */
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 
-            @SuppressWarnings("unlikely-arg-type")
 			@Override
             public void run() {
                 for (Player pl : Bukkit.getOnlinePlayers()) 
                 {
-                	List<Block> b2 = new ArrayList<Block>();
-                	b2 = getNearbyBlocks(pl.getLocation(), 10);
+                	List<Material> b2 = new ArrayList<Material>();
+                	for(Block b : getNearbyBlocks(pl.getLocation(), 10))
+                	{
+                		b2.add(b.getType());
+                	}
     				if(b2.contains(Material.FIRE) || b2.contains(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage")) 
     				{
     					pl.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0));
@@ -374,6 +384,9 @@ public class Main extends JavaPlugin {
                 }
             }
         }, 0L, 600L);
+        /*
+         * THIRST
+         */
 	    Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() 
 	    {
 	    	@Override
@@ -408,6 +421,52 @@ public class Main extends JavaPlugin {
 	    		}
 	    	}
 	    }, 0L, getConfig().getInt("Server.Player.Thirst.Interval"));
+	    /*
+	     * IMMUNE SYSTEM
+	     */
+	    if(getConfig().getBoolean("Server.Player.Immune_System.Enabled")) 
+	    {
+	    	Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() 
+	    	{
+	    		@Override
+	    		public void run() {
+	    			
+	    			if(Bukkit.getOnlinePlayers().size() >= getConfig().getInt("Server.Player.Immune_System.Req_Players")) 
+	    			{
+	    				int random = new Random().nextInt(getServer().getOnlinePlayers().size());
+	    				Player p = (Player) getServer().getOnlinePlayers().toArray()[random];
+	    				if(p.hasPermission("mcr.getcold") && disease.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+		    			{
+    						TitleManager.sendTitle(p, "", ChatColor.RED + "The disease begins to damage your body...", 200);
+    						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+    						p.damage(4);
+    						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 600, 0));
+    						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0));
+    						p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 0));
+		    			}
+    					else if(p.hasPermission("mcr.getcold") && cold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+    					{
+    						cold.remove(p);
+    						disease.add(p);
+    						TitleManager.sendTitle(p, "", ChatColor.RED + "Your cold developed into a disease!", 200);
+    						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+    						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 600, 0));
+    						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0));
+    						TitleManager.sendActionBar(p, ChatColor.GREEN + "" + ChatColor.BOLD + "TIP:" + ChatColor.WHITE + " Use medicine to fight the disease!");
+    					}
+    					else if(p.hasPermission("mcr.getcold") && !cold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+    					{
+    						cold.add(p);
+    						TitleManager.sendTitle(p, "", ChatColor.RED + "You have caught a cold!", 200);
+    						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+    						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3000, 0));
+    						p.damage(2);
+							TitleManager.sendActionBar(p, ChatColor.GREEN + "" + ChatColor.BOLD + "TIP:" + ChatColor.WHITE + " Use medicine to fight the cold!");
+    					}
+		    		}
+	    		}
+	   		}, 0, getConfig().getInt("Server.Player.Immune_System.Interval"));
+	    }
 	}
 	public ArrayList<UUID> getBurning()
 	{
