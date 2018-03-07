@@ -1,4 +1,4 @@
-package com.SamB440.listeners;
+package com.SamB440.MCRealistic.listeners;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;

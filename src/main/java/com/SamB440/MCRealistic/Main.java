@@ -23,10 +23,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.SamB440.MCRealistic.utils.TitleManager;
-import com.SamB440.listeners.InteractListener;
-import com.SamB440.listeners.JoinListener;
-import com.SamB440.listeners.ProjectileListener;
-import com.SamB440.listeners.RespawnListener;
+import com.SamB440.MCRealistic.listeners.InteractListener;
+import com.SamB440.MCRealistic.listeners.JoinListener;
+import com.SamB440.MCRealistic.listeners.ProjectileListener;
+import com.SamB440.MCRealistic.listeners.RespawnListener;
 
 public class Main extends JavaPlugin {
 	
