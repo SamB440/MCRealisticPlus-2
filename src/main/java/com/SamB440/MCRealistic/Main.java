@@ -47,6 +47,7 @@ import com.SamB440.MCRealistic.utils.TitleManager;
 import com.SamB440.MCRealistic.listeners.BlockListener;
 import com.SamB440.MCRealistic.listeners.InteractListener;
 import com.SamB440.MCRealistic.listeners.JoinListener;
+import com.SamB440.MCRealistic.listeners.MoveListener;
 import com.SamB440.MCRealistic.listeners.ProjectileListener;
 import com.SamB440.MCRealistic.listeners.RespawnListener;
 
@@ -168,6 +169,7 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new RespawnListener(), this);
 		pm.registerEvents(new ProjectileListener(), this);
 		pm.registerEvents(new BlockListener(), this);
+		pm.registerEvents(new MoveListener(), this);
 	}
 	private void createConfig()
 	{
@@ -370,6 +372,10 @@ public class Main extends JavaPlugin {
                 }
             }
         }, 0, 600);
+	}
+	public ArrayList<UUID> getBurning()
+	{
+		return burn;
 	}
 	private List<Block> getNearbyBlocks(Location location, int radius) 
 	{
