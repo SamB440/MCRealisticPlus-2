@@ -4,7 +4,7 @@ author: SamB440
 authors: [c0mputex, CitadelCraft, markrasher123, zackerykr & AssassinsKeeper, CheB440, Chazmondo]
 website: http://www.islandearth.net
 depend: [WorldGuard]
-version: RECODE 1.0.0
+version: RECODE 2.0.0
 commands:
   MCRealistic: 
      description: MCRealistic commands

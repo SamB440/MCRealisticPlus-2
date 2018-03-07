@@ -8,6 +8,7 @@ package com.SamB440.MCRealistic.commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -59,6 +60,13 @@ public class MCRealistic implements CommandExecutor {
 						p.sendMessage(ChatColor.WHITE + "   Aliases: None.");
 						p.sendMessage(ChatColor.WHITE + "   Description: Reload the plugin.");
 						p.sendMessage(ChatColor.WHITE + "   Permission(s): OP");
+						TextComponent c3 = new TextComponent(ChatColor.GREEN + "/MCRealistic <item> <amount>");
+						c3.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.WHITE + "Click to paste command.").create()));
+						c3.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/MCRealistic item 1"));
+						p.spigot().sendMessage(c3);
+						p.sendMessage(ChatColor.WHITE + "   Aliases: None.");
+						p.sendMessage(ChatColor.WHITE + "   Description: Get an item with an amount.");
+						p.sendMessage(ChatColor.WHITE + "   Permission(s): mcr.give.item");
 						p.sendMessage(ChatColor.YELLOW + "© 2018 IslandEarth. Made with" + " ❤ " + "by SamB440.");
 					} else if(args.length == 1) {
 						if(args[0].equalsIgnoreCase("reload"))
@@ -66,6 +74,11 @@ public class MCRealistic implements CommandExecutor {
 							p.sendMessage(ChatColor.GREEN + "Reloading...");
 							Main.getInstance().reloadConfig();
 							Main.getInstance().saveConfig();
+							for(Player pl : Bukkit.getOnlinePlayers())
+							{
+								Main.getInstance().getConfig().set("Players.DefaultWalkSpeed." + pl.getUniqueId(), 0.2);
+								pl.setWalkSpeed((float)Main.getInstance().getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getUniqueId()));
+							}
 							p.sendMessage(ChatColor.GREEN + "Done!");
 						}
 					} else if(args.length == 2) {
