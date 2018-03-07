@@ -32,13 +32,11 @@ public class ProjectileListener implements Listener {
     {
     	Projectile p = phe.getEntity();
 		ApplicableRegionSet r = WGBukkit.getRegionManager(p.getWorld()).getApplicableRegions(p.getLocation());
-		System.out.println(r.getRegions().size());
-		System.out.println("test");
 		if(worlds.contains(p.getWorld()) && r.getRegions().size() == 0) 
 		{
 			if (getConfig().getBoolean("Server.Player.Allow Enchanted Arrow") && p.getType() == EntityType.ARROW && p.getFireTicks() > 0) 
 			{
-				p.getWorld().getBlockAt(p.getLocation()).setType(Material.FIRE);
+				if(p.getWorld().getBlockAt(p.getLocation()).getType() != null || p.getWorld().getBlockAt(p.getLocation()).getType().equals(Material.AIR)) p.getWorld().getBlockAt(p.getLocation()).setType(Material.FIRE);
 			}
     	}
     }

@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 
 import com.SamB440.MCRealistic.Main;
 
-public class Fatigue implements CommandExecutor {
+public class MyStats implements CommandExecutor {
 	
 	String c = "[MCRealistic-2] ";
 	
@@ -30,14 +30,18 @@ public class Fatigue implements CommandExecutor {
 			Player p = (Player) sender;
 			if(worlds.contains(p.getWorld()))
 			{
-				if(!p.hasPermission("mcr.fatigue")) 
+				if(!p.hasPermission("mcr.mystats")) 
 				{
 					p.sendMessage(ChatColor.RED + "You don't have permission to see your fatigue.");
 				} else if(getConfig().getBoolean("Server.Player.Allow /fatigue")) {
-					p.sendMessage(ChatColor.GOLD + "==== " + ChatColor.DARK_GREEN + "My fatigue is: " + ChatColor.GREEN + getConfig().getInt(new StringBuilder("Players.Fatigue.").append(p.getUniqueId()).toString()) + "/250" + ChatColor.GOLD + " ====");
+					p.sendMessage(ChatColor.GOLD + "==== " + ChatColor.DARK_GREEN + "My stats are: " + ChatColor.GOLD + " ====");
+					p.sendMessage(ChatColor.AQUA + "My name is: " + getConfig().getString(new StringBuilder("Players.RealName.").append(p.getUniqueId()).toString()));
+					p.sendMessage(ChatColor.AQUA + "My nickname is: " + p.getDisplayName());
+					p.sendMessage(ChatColor.AQUA + "My age is: " + getConfig().getInt(new StringBuilder("Players.RealAge.").append(p.getUniqueId()).toString()));
+					p.sendMessage(ChatColor.GOLD + "====================");
 					return true;
 				}
-			} else p.sendMessage(ChatColor.RED + "Fatigue is not enabled in this world.");
+			} else p.sendMessage(ChatColor.RED + "MyStats is not enabled in this world.");
 		} else sender.sendMessage(c + "You must be a player to execute this command.");
 		return true;
 	}

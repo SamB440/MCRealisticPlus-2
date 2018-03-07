@@ -17,6 +17,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -30,6 +31,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.SamB440.MCRealistic.utils.TitleManager;
 import com.SamB440.MCRealistic.commands.Fatigue;
+import com.SamB440.MCRealistic.commands.MCRealistic;
+import com.SamB440.MCRealistic.commands.MyStats;
 import com.SamB440.MCRealistic.commands.Thirst;
 import com.SamB440.MCRealistic.listeners.BlockListener;
 import com.SamB440.MCRealistic.listeners.ConsumeListener;
@@ -248,6 +251,8 @@ public class Main extends JavaPlugin {
 	{
 		getCommand("thirst").setExecutor(new Thirst());
 		getCommand("fatigue").setExecutor(new Fatigue());
+		getCommand("mcrealistic").setExecutor(new MCRealistic());
+		getCommand("mystats").setExecutor(new MyStats());
 	}
 	@SuppressWarnings("deprecation")
 	private void registerRecipes()
@@ -258,7 +263,7 @@ public class Main extends JavaPlugin {
 		medicinemeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"));
 		medicine.setItemMeta(medicinemeta);
 		
-		ShapedRecipe medicinecraft = new ShapedRecipe(medicine);
+		ShapedRecipe medicinecraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName()), medicine);
 			medicinecraft.shape(
 				"   ",
 				" B ",
@@ -275,7 +280,7 @@ public class Main extends JavaPlugin {
 		chocolatemilkmeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to gain Speed II."));
 		chocolatemilk.setItemMeta(chocolatemilkmeta);
 		
-		ShapedRecipe chocolatemilkcraft = new ShapedRecipe(chocolatemilk);
+		ShapedRecipe chocolatemilkcraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName()), chocolatemilk);
 			chocolatemilkcraft.shape(
 			    "   ",
 			    "CBC",
@@ -290,7 +295,7 @@ public class Main extends JavaPlugin {
 		bm.setDisplayName(ChatColor.DARK_AQUA + "Bandage");
 	    bandage.setItemMeta(bm);
 	    
-	    ShapedRecipe BandageRecipe = new ShapedRecipe(bandage);
+	    ShapedRecipe BandageRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName()), bandage);
 	    BandageRecipe.shape(
 	    		"   ", 
 	    		" B ", 
@@ -368,7 +373,7 @@ public class Main extends JavaPlugin {
                     }
                 }
             }
-        }, 0, 600);
+        }, 0L, 600L);
 	    Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() 
 	    {
 	    	@Override
@@ -402,7 +407,7 @@ public class Main extends JavaPlugin {
 	    			}
 	    		}
 	    	}
-	    }, 0, getConfig().getInt("Server.Player.Thirst.Interval"));
+	    }, 0L, getConfig().getInt("Server.Player.Thirst.Interval"));
 	}
 	public ArrayList<UUID> getBurning()
 	{
