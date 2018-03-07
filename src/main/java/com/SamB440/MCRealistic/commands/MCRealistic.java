@@ -6,13 +6,17 @@
 package com.SamB440.MCRealistic.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.SamB440.MCRealistic.Main;
 
@@ -64,6 +68,32 @@ public class MCRealistic implements CommandExecutor {
 							Main.getInstance().saveConfig();
 							p.sendMessage(ChatColor.GREEN + "Done!");
 						}
+					} else if(args.length == 2) {
+						if(p.hasPermission("mcr.item.give"))
+						{
+							if(args[0].equalsIgnoreCase("Bandage")) 
+							{
+								ItemStack Bandage = new ItemStack(Material.PAPER, Integer.parseInt(args[1]));
+								ItemMeta BandageItemMeta = Bandage.getItemMeta();
+								BandageItemMeta.setDisplayName(ChatColor.DARK_AQUA + "Bandage");
+								Bandage.setItemMeta(BandageItemMeta);
+								p.getInventory().addItem(Bandage);
+							} else if(args[0].equalsIgnoreCase("ChocolateMilk")) {
+								ItemStack chocolatemilk = new ItemStack(Material.MILK_BUCKET, Integer.parseInt(args[1]));
+								ItemMeta chocolatemilkmeta = chocolatemilk.getItemMeta();
+								chocolatemilkmeta.setDisplayName(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "Chocolate Milk");
+								chocolatemilkmeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to gain Speed II."));
+								chocolatemilk.setItemMeta(chocolatemilkmeta);
+								p.getInventory().addItem(chocolatemilk);
+							} else if(args[0].equalsIgnoreCase("Medicine")) {
+								ItemStack medicine = new ItemStack(Material.POTION, Integer.parseInt(args[1]));
+								ItemMeta medicinemeta = medicine.getItemMeta();
+								medicinemeta.setDisplayName(ChatColor.GREEN + "Medicine");
+								medicinemeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"));
+								medicine.setItemMeta(medicinemeta);
+								p.getInventory().addItem(medicine);
+							}
+						} else p.sendMessage(ChatColor.RED + "You do not have permission to get MCR items.");
 					}
 				}
 			} else p.sendMessage(ChatColor.RED + "MCRealistic is not enabled in this world.");

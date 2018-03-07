@@ -38,11 +38,15 @@ import com.SamB440.MCRealistic.commands.MyStats;
 import com.SamB440.MCRealistic.commands.Thirst;
 import com.SamB440.MCRealistic.listeners.BlockListener;
 import com.SamB440.MCRealistic.listeners.ConsumeListener;
+import com.SamB440.MCRealistic.listeners.EntityListener;
+import com.SamB440.MCRealistic.listeners.FoodChangeListener;
 import com.SamB440.MCRealistic.listeners.InteractListener;
+import com.SamB440.MCRealistic.listeners.InventoryListener;
 import com.SamB440.MCRealistic.listeners.JoinListener;
 import com.SamB440.MCRealistic.listeners.MoveListener;
 import com.SamB440.MCRealistic.listeners.ProjectileListener;
 import com.SamB440.MCRealistic.listeners.RespawnListener;
+import com.SamB440.MCRealistic.metrics.Metrics;
 
 public class Main extends JavaPlugin {
 	
@@ -57,6 +61,7 @@ public class Main extends JavaPlugin {
 	private ArrayList<Player> disease = new ArrayList<Player>();
 	private ArrayList<Player> cold = new ArrayList<Player>();
 	
+	@SuppressWarnings("unused")
 	public void onEnable()
 	{
 		instance = this;
@@ -138,6 +143,7 @@ public class Main extends JavaPlugin {
 		ignore.add(Material.LOG);
 		ignore.add(Material.LOG_2);
 		BlockListener.addBlocks(ignore);
+		Metrics metrics = new Metrics(this);
         for(String s : getConfig().getStringList("Worlds"))
         {
         	World w = Bukkit.getWorld(s);
@@ -167,6 +173,9 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new BlockListener(), this);
 		pm.registerEvents(new MoveListener(), this);
 		pm.registerEvents(new ConsumeListener(), this);
+		pm.registerEvents(new InventoryListener(), this);
+		pm.registerEvents(new FoodChangeListener(), this);
+		pm.registerEvents(new EntityListener(), this);
 	}
 	private void createConfig()
 	{
