@@ -119,6 +119,28 @@ public class Main extends JavaPlugin {
         lastnames.add("Baker");
         lastnames.add("Kelly");
 		RespawnListener.addNames(firstnames, lastnames);
+		ArrayList<Material> ignore = new ArrayList<Material>();
+		ignore.add(Material.TORCH);
+		ignore.add(Material.REDSTONE_TORCH_OFF);
+		ignore.add(Material.REDSTONE_TORCH_ON);
+		ignore.add(Material.SIGN);
+		ignore.add(Material.SIGN_POST);
+		ignore.add(Material.WALL_SIGN);
+		ignore.add(Material.VINE);
+		ignore.add(Material.LADDER);
+		ignore.add(Material.WOOD_BUTTON);
+		ignore.add(Material.STONE_BUTTON);
+		ignore.add(Material.FENCE);
+		ignore.add(Material.WOOD_STEP);
+		ignore.add(Material.WOOD_DOUBLE_STEP);
+		ignore.add(Material.DOUBLE_STEP);
+		ignore.add(Material.DOUBLE_STONE_SLAB2);
+		ignore.add(Material.PURPUR_DOUBLE_SLAB);
+		ignore.add(Material.PURPUR_SLAB);
+		ignore.add(Material.STONE_SLAB2);
+		ignore.add(Material.LOG);
+		ignore.add(Material.LOG_2);
+		BlockListener.addBlocks(ignore);
         for(String s : getConfig().getStringList("Worlds"))
         {
         	World w = Bukkit.getWorld(s);

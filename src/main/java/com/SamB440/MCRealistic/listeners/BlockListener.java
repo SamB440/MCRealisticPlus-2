@@ -23,6 +23,8 @@ import com.SamB440.MCRealistic.utils.TitleManager;
 public class BlockListener implements Listener {
 	
 	ArrayList<World> worlds = Main.getInstance().getWorlds();
+	static ArrayList<Material> ignore = new ArrayList<Material>();
+	
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent bpe) 
@@ -35,27 +37,11 @@ public class BlockListener implements Listener {
 			{
 	        	if (p.getInventory().getItemInMainHand().hasItemMeta()) {
 	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.TORCH)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.REDSTONE_TORCH_OFF)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.REDSTONE_TORCH_ON)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.SIGN)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.SIGN_POST)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.VINE)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.WOOD_BUTTON)) {
-	        		return;
-	        	} else if (bpe.getBlock().getType().equals(Material.STONE_BUTTON)) {
-	        		return;
-	        	} else if(bpe.getBlock().getType().equals(Material.FENCE)) {
-	        		return;
-	        	} else if(bpe.getBlock().getType().equals(Material.LOG) || bpe.getBlock().getType().equals(Material.LOG_2)) {
+	        	} else if (ignore.contains(bpe.getBlock().getType())) {
 	        		return;
 	        	} else if (bpe.getBlock().getLocation().subtract(0.0, 1.0, 0.0).getBlock().getType() != Material.AIR) {
+	        		return;
+	        	} else if(bpe.getBlock().getLocation().subtract(1.0, 0.0, 0.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().subtract(0.0, 0.0, 1.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().add(1.0, 0.0, 0.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().add(0.0, 0.0, 1.0).getBlock().getType().equals(Material.LOG) || bpe.getBlock().getLocation().add(0.0, 1.0, 0.0).getBlock().getType().equals(Material.LOG)) {
 	        		return;
 	        	}
 	        	if(!block.getType().equals(Material.SIGN)) 
@@ -135,5 +121,9 @@ public class BlockListener implements Listener {
 	private FileConfiguration getConfig()
 	{
 		return Main.getInstance().getConfig();
+	}
+	public static void addBlocks(ArrayList<Material> b)
+	{
+		ignore = b;
 	}
 }
