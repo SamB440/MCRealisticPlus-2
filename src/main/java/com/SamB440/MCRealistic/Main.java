@@ -476,6 +476,89 @@ public class Main extends JavaPlugin {
 	    		}
 	   		}, 0, getConfig().getInt("Server.Player.Immune_System.Interval"));
 	    }
+	    /*
+	     * MISC
+	     */
+        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
+        {
+
+            @Override
+            public void run() {
+                for (Player pl : Bukkit.getOnlinePlayers()) 
+                {
+                	if(!(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR)))
+                	{
+	                    float WeightLeggings;
+	                    int CurrentFatigue;
+	                    float WeightCombined;
+	                    float WeightChestPlate;
+	                    if (getConfig().getBoolean("Server.Player.Allow Fatigue")) {
+	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 240) {
+	                            TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Very Tired")));
+	                            pl.damage(3.0);
+	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
+	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
+	                        }
+	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 150 && getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) <= 200) {
+	                            TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Tired")));
+	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
+	                        }
+	                    }
+	                    if (!getConfig().getBoolean("Server.Weather.WeatherAffectsPlayer") && !(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR))) continue;
+	                    if (pl.getWorld().hasStorm()) {
+	                        if (pl.getInventory().getBoots() != null && pl.getInventory().getChestplate() != null) {
+	                            if (!getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) {
+	                                getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
+	                                WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
+	                                WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
+	                                WeightCombined = WeightLeggings + WeightChestPlate;
+	                                pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
+	                                getConfig().set("Players.IsCold." + pl.getUniqueId(), false);
+	                                pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
+	                            }
+	                        } else if (pl.getInventory().getBoots() == null && pl.getInventory().getChestplate() == null && !getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) && !getConfig().getBoolean("Players.NearFire." + pl.getUniqueId())) {
+	                            pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cold")));
+	                            TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cold")));
+	                            CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
+	                            getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 10));
+	                            getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.123);
+	                            float WeightLeggings2 = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
+	                            float WeightChestPlate2 = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
+	                            float WeightCombined2 = WeightLeggings2 + WeightChestPlate2;
+	                            pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined2 * 0.01f)));
+	                            getConfig().set("Players.IsCold." + pl.getUniqueId(), true);
+	                            pl.damage(3.0);
+	                        }
+	                    }
+	                    if (!pl.getWorld().hasStorm() && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) {
+	                        getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
+	                        getConfig().set("Players.IsCold." + pl.getUniqueId(), false);
+	                        WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
+	                        WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
+	                        WeightCombined = WeightLeggings + WeightChestPlate;
+	                        pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
+	                    }
+	                    if (!getConfig().getBoolean("Players.IsCold." + pl.getUniqueId()) && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) {
+	                        getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
+	                        WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
+	                        WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
+	                        WeightCombined = WeightLeggings + WeightChestPlate;
+	                        pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
+	                    }
+	                    if (!getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) || !pl.getWorld().hasStorm() || getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) continue;
+	                    getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
+	                    WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
+	                    WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
+	                    WeightCombined = WeightLeggings + WeightChestPlate;
+	                    pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
+	                    pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+	                    TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+	                    CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
+	                    getConfig().set("Players.Fatigue." + pl.getUniqueId(), (--CurrentFatigue));
+	                }
+                }
+            }
+        }, 0, 400);
 	}
 	public ArrayList<UUID> getBurning()
 	{

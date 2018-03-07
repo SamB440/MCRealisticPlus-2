@@ -40,7 +40,7 @@ public class InventoryListener implements Listener {
 	    			{
 	    				pl.setWalkSpeed(0.2f);
 	    				if (pl.getInventory().getChestplate() != null) 
-
+	    				{
 	    					switch ($SWITCH_TABLE$org$bukkit$Material()[pl.getInventory().getChestplate().getType().ordinal()]) 
 	    					{
 		    					case 250: {
@@ -65,43 +65,44 @@ public class InventoryListener implements Listener {
 		    					}
 	    					}
 	    				} else getConfig().set("Players.ChestplateWeight." + pl.getUniqueId(), 0);
-    				if (pl.getInventory().getLeggings() != null) 
-    				{
-    					switch ($SWITCH_TABLE$org$bukkit$Material()[pl.getInventory().getLeggings().getType().ordinal()]) 
-    					{
-    						case 251: 
-    						{
-    							getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 5);
-    							break;
-    						}
-    						case 247: 
-    						{
-    							getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 5);
-    							break;
-    						}
-    						case 259: 
-    						{
-    							getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 6);
-    							break;
-    						}
-    						case 255: 
-    						{
-    							getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 8);
-    							break;
-    						}
-    						default: 
-    						{
-    							getConfig().set("Players.LeggingsWeight." + pl.getUniqueId(), 0);
-    							break;
-    						}
-    					}
-    				} else getConfig().set("Players.LeggingsWeight." + pl.getUniqueId(), 0);
-    				float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
-    				float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
-    				float WeightCombined = WeightLeggings + WeightChestPlate;
-    				pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + ice.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
-	    		}
-	    	}	
+	    				if (pl.getInventory().getLeggings() != null) 
+	    				{
+							switch ($SWITCH_TABLE$org$bukkit$Material()[pl.getInventory().getLeggings().getType().ordinal()]) 
+							{
+								case 251: 
+								{
+									getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 5);
+									break;
+								}
+								case 247: 
+								{
+									getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 5);
+									break;
+								}
+								case 259: 
+								{
+									getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 6);
+									break;
+								}
+								case 255: 
+								{
+									getConfig().set("Players.LeggingsWeight" + pl.getUniqueId(), 8);
+									break;
+								}
+								default: 
+								{
+									getConfig().set("Players.LeggingsWeight." + pl.getUniqueId(), 0);
+									break;
+								}
+							}
+						} else getConfig().set("Players.LeggingsWeight." + pl.getUniqueId(), 0);
+	    				float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
+	    				float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
+	    				float WeightCombined = WeightLeggings + WeightChestPlate;
+	    				pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + ice.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
+	    			}	
+	    		}	
+        	}
         }
     }
     private FileConfiguration getConfig()
