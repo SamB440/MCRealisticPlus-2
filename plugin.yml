@@ -1,0 +1,21 @@
+name: MCRealistic-2
+main: com.SamB440.MCRealistic.Main
+author: SamB440
+authors: [c0mputex, CitadelCraft, markrasher123, zackerykr & AssassinsKeeper, CheB440, Chazmondo]
+website: http://www.islandearth.net
+depend: [WorldGuard]
+version: RECODE 1.0.0
+commands:
+  MCRealistic: 
+     description: MCRealistic commands
+     usage: /MCRealistic
+     aliases: [mcr, mcreal, mcrc]
+  MyStats:
+     description: MCRealistic stats
+     usage: /MyStats
+  Fatigue:
+     description: MCRealistic fatigue
+     usage: /Fatigue
+  Thirst:
+     description: MCRealistic thirst
+     usage: /Thirst

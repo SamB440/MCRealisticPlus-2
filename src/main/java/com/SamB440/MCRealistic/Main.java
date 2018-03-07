@@ -1,3 +1,24 @@
+/*MIT License
+
+Copyright (c) 2018 Sam
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.*/
 package com.SamB440.MCRealistic;
 
 import java.io.File;
@@ -23,6 +44,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.SamB440.MCRealistic.utils.TitleManager;
+import com.SamB440.MCRealistic.listeners.BlockListener;
 import com.SamB440.MCRealistic.listeners.InteractListener;
 import com.SamB440.MCRealistic.listeners.JoinListener;
 import com.SamB440.MCRealistic.listeners.ProjectileListener;
@@ -102,6 +124,7 @@ public class Main extends JavaPlugin {
         	World w = Bukkit.getWorld(s);
         	worlds.add(w);
         }
+        System.out.println(worlds);
 	}
 	public void onDisable()
 	{
@@ -122,6 +145,7 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new JoinListener(), this);
 		pm.registerEvents(new RespawnListener(), this);
 		pm.registerEvents(new ProjectileListener(), this);
+		pm.registerEvents(new BlockListener(), this);
 	}
 	private void createConfig()
 	{
@@ -195,9 +219,6 @@ public class Main extends JavaPlugin {
     		getConfig().addDefault("Server.Messages.Should_Sleep", "&cI should sleep in that bed...");
     		getConfig().addDefault("Server.Messages.Used_Bandage", "&aYou used a bandage, your legs healed!");
     		getConfig().addDefault("Server.Messages.Respawn", true);
-    		getConfig().addDefault("Server.Campfires.Radius", 10);
-    		getConfig().addDefault("Server.Campfires.Cook_Time", 5);
-    		getConfig().addDefault("Server.Campfires.Cannot_Place", "&c&lYou cannot place a campfire here!");
     		getConfig().addDefault("Server.Player.Thirst.Interval", 6000);
     		getConfig().addDefault("Server.Player.Thirst.Enabled", true);
     		getConfig().addDefault("Server.Player.Immune_System.Interval", 6000);
