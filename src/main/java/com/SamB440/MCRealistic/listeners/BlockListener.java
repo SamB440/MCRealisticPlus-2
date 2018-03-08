@@ -8,7 +8,6 @@ package com.SamB440.MCRealistic.listeners;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,6 +22,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 
 public class BlockListener implements Listener {
@@ -59,7 +59,7 @@ public class BlockListener implements Listener {
 			}
         	if (getConfig().getInt("Players.Fatigue." + bpe.getPlayer().getUniqueId()) >= 250 && block.getType() != Material.BED && block.getType() != Material.BED_BLOCK) 
         	{
-        		TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Too Tired")));
+        		TitleManager.sendActionBar(p, Lang.TOO_TIRED.getConfigValue(null));
         		bpe.setCancelled(true);
         	}	
 		}
@@ -77,14 +77,14 @@ public class BlockListener implements Listener {
 	        {        	
 		        if (getConfig().getInt("Players.Fatigue." + p.getUniqueId()) >= 250) 
 		        {
-		            TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Too Tired")));
+		            TitleManager.sendActionBar(p, Lang.TOO_TIRED.getConfigValue(null));
 		            bbe.setCancelled(true);
 		        }
 		        if (block.getType().equals(Material.LOG) || block.getType().equals(Material.LOG_2)) 
 		        {
 		            if (p.getInventory().getItemInMainHand().getType().equals(Material.AIR) && !getConfig().getBoolean("Server.Player.Allow Chop Down Trees With Hands")) 
 		            {
-		                p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.No Hand Chop")));
+		                p.sendMessage(Lang.NO_HAND_CHOP.getConfigValue(null));
 		                bbe.setCancelled(true);
 		            }
 		            if ((p.getInventory().getItemInMainHand().getType().equals(Material.WOOD_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.IRON_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.STONE_AXE)) && getConfig().getBoolean("Server.Player.Trees have random number of drops")) 
@@ -116,7 +116,7 @@ public class BlockListener implements Listener {
 		        }
 		        if (getConfig().getInt("Players.Fatigue." + p.getUniqueId()) >= 250) 
 		        {
-		        	TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Too Tired")));
+		        	TitleManager.sendActionBar(p, Lang.TOO_TIRED.getConfigValue(null));
 		            bbe.setCancelled(true);
 		        }
 	        }

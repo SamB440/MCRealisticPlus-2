@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 
 public class MyStats implements CommandExecutor {
 	
@@ -32,7 +33,7 @@ public class MyStats implements CommandExecutor {
 			{
 				if(!p.hasPermission("mcr.mystats")) 
 				{
-					p.sendMessage(ChatColor.RED + "You don't have permission to see your fatigue.");
+					p.sendMessage(Lang.NO_PERMISSION.getConfigValue(new String[] {"mcr.mystats"}));
 				} else if(getConfig().getBoolean("Server.Player.Allow /fatigue")) {
 					p.sendMessage(ChatColor.GOLD + "==== " + ChatColor.DARK_GREEN + "My stats are: " + ChatColor.GOLD + " ====");
 					p.sendMessage(ChatColor.AQUA + "My name is: " + getConfig().getString(new StringBuilder("Players.RealName.").append(p.getUniqueId()).toString()));

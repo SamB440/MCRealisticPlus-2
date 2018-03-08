@@ -7,7 +7,6 @@ package com.SamB440.MCRealistic.listeners;
 
 import java.util.ArrayList;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 
 public class FoodChangeListener implements Listener {
@@ -32,8 +32,8 @@ public class FoodChangeListener implements Listener {
 			{
 				if (getConfig().getBoolean("Server.Player.DisplayHungerMessage") && p.getFoodLevel() < 6) 
 				{
-		    		p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Hungry")));
-		    		TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Hungry")));
+		    		p.sendMessage(Lang.HUNGRY.getConfigValue(null));
+		    		TitleManager.sendActionBar(p, Lang.HUNGRY.getConfigValue(null));
 		    		int CurrentFatigue = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
 		    		getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue));
         		}

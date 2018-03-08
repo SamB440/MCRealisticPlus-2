@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 
 public class Fatigue implements CommandExecutor {
 	
@@ -32,7 +33,7 @@ public class Fatigue implements CommandExecutor {
 			{
 				if(!p.hasPermission("mcr.fatigue")) 
 				{
-					p.sendMessage(ChatColor.RED + "You don't have permission to see your fatigue.");
+					p.sendMessage(Lang.NO_PERMISSION.getConfigValue(new String[] {"mcr.fatigue"}));
 				} else if(getConfig().getBoolean("Server.Player.Allow /fatigue")) {
 					p.sendMessage(ChatColor.GOLD + "==== " + ChatColor.DARK_GREEN + "My fatigue is: " + ChatColor.GREEN + getConfig().getInt(new StringBuilder("Players.Fatigue.").append(p.getUniqueId()).toString()) + "/250" + ChatColor.GOLD + " ====");
 					return true;

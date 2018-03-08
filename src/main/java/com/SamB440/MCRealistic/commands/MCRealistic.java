@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -71,15 +72,20 @@ public class MCRealistic implements CommandExecutor {
 					} else if(args.length == 1) {
 						if(args[0].equalsIgnoreCase("reload"))
 						{
-							p.sendMessage(ChatColor.GREEN + "Reloading...");
-							Main.getInstance().reloadConfig();
-							Main.getInstance().saveConfig();
-							for(Player pl : Bukkit.getOnlinePlayers())
+							if(!p.hasPermission("mcr.reload"))
 							{
-								Main.getInstance().getConfig().set("Players.DefaultWalkSpeed." + pl.getUniqueId(), 0.2);
-								pl.setWalkSpeed((float)Main.getInstance().getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getUniqueId()));
+								p.sendMessage(Lang.NO_PERMISSION.getConfigValue(new String[] {"mcr.reload"}));
+							} else {
+								p.sendMessage(ChatColor.GREEN + "Reloading...");
+								Main.getInstance().reloadConfig();
+								Main.getInstance().saveConfig();
+								for(Player pl : Bukkit.getOnlinePlayers())
+								{
+									Main.getInstance().getConfig().set("Players.DefaultWalkSpeed." + pl.getUniqueId(), 0.2);
+									pl.setWalkSpeed((float)Main.getInstance().getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getUniqueId()));
+								}
+								p.sendMessage(ChatColor.GREEN + "Done!");
 							}
-							p.sendMessage(ChatColor.GREEN + "Done!");
 						}
 					} else if(args.length == 2) {
 						if(p.hasPermission("mcr.item.give"))
@@ -106,7 +112,7 @@ public class MCRealistic implements CommandExecutor {
 								medicine.setItemMeta(medicinemeta);
 								p.getInventory().addItem(medicine);
 							}
-						} else p.sendMessage(ChatColor.RED + "You do not have permission to get MCR items.");
+						} else p.sendMessage(Lang.NO_PERMISSION.getConfigValue(new String[] {"mcr.item.give"}));
 					}
 				}
 			} else p.sendMessage(ChatColor.RED + "MCRealistic is not enabled in this world.");

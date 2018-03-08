@@ -21,6 +21,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 
 public class ConsumeListener implements Listener {
@@ -36,32 +37,29 @@ public class ConsumeListener implements Listener {
 		{
 	        if(!(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
 	        {
-	        	if (pice.getItem() != null && pice.getItem().getType() != null && p != null && pice.getItem().getType().equals(Material.POTION)) 
+	        	if (pice.getItem() != null && pice.getItem().getType() != null && p != null && pice.getItem().hasItemMeta() && pice.getItem().getType().equals(Material.POTION)) 
 	        	{
 	        		getConfig().set("Players.Thirst." + p.getUniqueId(), 0);
-	        		p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Not Thirsty")));
-	        		TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Not Thirsty")));
+	        		p.sendMessage(Lang.NOT_THIRSTY.getConfigValue(null));
+	        		TitleManager.sendActionBar(p, Lang.NOT_THIRSTY.getConfigValue(null));
 	        		int CurrentFatigue = this.getConfig().getInt("Players.Fatigue." + p.getUniqueId());
 	        		getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue -= 2));
-	        		if(pice.getItem().hasItemMeta()) 
-	        		{
-	        			if(pice.getItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Medicine") && pice.getItem().getItemMeta().getLore().equals(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"))) 
-	        			{
-	        				if(hascold.contains(p)) 
-	        				{
-	        					TitleManager.sendTitle(p, "", ChatColor.GREEN + "The cold begins to subside...", 200);
-	        					hascold.remove(p);
-	        				}
-	        				else if(hasdisease.contains(p)) 
-	        				{
-	        					hasdisease.remove(p);
-	        					TitleManager.sendTitle(p, "", ChatColor.GREEN + "The disease begins to subside...", 200);
-	        				}
-	        			}
-	        		}
+        			if(pice.getItem().getItemMeta().getDisplayName() != null && pice.getItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Medicine") && pice.getItem().getItemMeta().getLore().equals(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"))) 
+        			{
+        				if(hascold.contains(p)) 
+        				{
+        					TitleManager.sendTitle(p, "", ChatColor.GREEN + "The cold begins to subside...", 200);
+        					hascold.remove(p);
+        				}
+        				else if(hasdisease.contains(p)) 
+        				{
+        					hasdisease.remove(p);
+        					TitleManager.sendTitle(p, "", ChatColor.GREEN + "The disease begins to subside...", 200);
+        				}
+        			}
 	            	if(pice.getItem().getType().equals(Material.MILK_BUCKET)) 
 	            	{
-	            		if(pice.getItem().hasItemMeta() && pice.getItem().getItemMeta().getDisplayName().equals(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "Chocolate Milk") && pice.getItem().getItemMeta().getLore().equals(Arrays.asList(ChatColor.WHITE + "Drink to gain Speed II."))) 
+	            		if(pice.getItem().getItemMeta().getDisplayName().equals(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "Chocolate Milk") && pice.getItem().getItemMeta().getLore().equals(Arrays.asList(ChatColor.WHITE + "Drink to gain Speed II."))) 
 	            		{
     						p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2000, 1));
 	            		}

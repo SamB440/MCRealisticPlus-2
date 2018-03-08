@@ -31,6 +31,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import com.SamB440.MCRealistic.utils.ConfigWrapper;
+import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 import com.SamB440.MCRealistic.commands.Fatigue;
 import com.SamB440.MCRealistic.commands.MCRealistic;
@@ -61,6 +63,8 @@ public class Main extends JavaPlugin {
 	private ArrayList<Player> disease = new ArrayList<Player>();
 	private ArrayList<Player> cold = new ArrayList<Player>();
 	
+    private ConfigWrapper messagesFile = new ConfigWrapper(this, "/lang", "en-gb.yml");
+	
 	@SuppressWarnings("unused")
 	public void onEnable()
 	{
@@ -74,6 +78,8 @@ public class Main extends JavaPlugin {
 		}
 		getConfig().options().copyDefaults(true);
 		createConfig();
+        messagesFile.createNewFile("Loading lang/en-gb.yml", "MCRealistic-2 Language File (en-gb)");
+        loadMessages();
 		registerListeners();
 		registerRecipes();
 		registerCommands();
@@ -122,26 +128,11 @@ public class Main extends JavaPlugin {
         lastnames.add("Kelly");
 		RespawnListener.addNames(firstnames, lastnames);
 		ArrayList<Material> ignore = new ArrayList<Material>();
-		ignore.add(Material.TORCH);
-		ignore.add(Material.REDSTONE_TORCH_OFF);
-		ignore.add(Material.REDSTONE_TORCH_ON);
-		ignore.add(Material.SIGN);
-		ignore.add(Material.SIGN_POST);
-		ignore.add(Material.WALL_SIGN);
-		ignore.add(Material.VINE);
-		ignore.add(Material.LADDER);
-		ignore.add(Material.WOOD_BUTTON);
-		ignore.add(Material.STONE_BUTTON);
-		ignore.add(Material.FENCE);
-		ignore.add(Material.WOOD_STEP);
-		ignore.add(Material.WOOD_DOUBLE_STEP);
-		ignore.add(Material.DOUBLE_STEP);
-		ignore.add(Material.DOUBLE_STONE_SLAB2);
-		ignore.add(Material.PURPUR_DOUBLE_SLAB);
-		ignore.add(Material.PURPUR_SLAB);
-		ignore.add(Material.STONE_SLAB2);
-		ignore.add(Material.LOG);
-		ignore.add(Material.LOG_2);
+		for(String s : getConfig().getStringList("Server.Building.Ignored_Blocks"))
+		{
+			Material m = Material.valueOf(s);
+			ignore.add(m);
+		}
 		BlockListener.addBlocks(ignore);
 		Metrics metrics = new Metrics(this);
 		log.info(c + "Started metrics. Opt-out using global bStats config.");
@@ -155,6 +146,17 @@ public class Main extends JavaPlugin {
 	public void onDisable()
 	{
 		instance = null;
+	}
+	private void loadMessages() 
+	{
+        Lang.setFile(messagesFile.getConfig());
+        for (final Lang value : Lang.values()) 
+        {
+            messagesFile.getConfig().addDefault(value.getPath(),
+                    value.getDefault());
+        }
+        messagesFile.getConfig().options().copyDefaults(true);
+        messagesFile.saveConfig();
 	}
 	public static Main getInstance()
 	{
@@ -185,6 +187,7 @@ public class Main extends JavaPlugin {
     	{
 			List<String> worlds = new ArrayList<>();
 			worlds.add("world");
+			worlds.add("world_dregora");
 			List<String> diseases = new ArrayList<>();
 			diseases.add("a disease");
 			String header;
@@ -223,7 +226,29 @@ public class Main extends JavaPlugin {
 			getConfig().addDefault("Server.Player.DisplayCozyMessage", true);
 			getConfig().addDefault("Server.Player.DisplayHurtMessage", true);
 			getConfig().addDefault("Server.Player.Weight", true);
+			getConfig().addDefault("Server.Player.Broken_Bones.Enabled", true);
 			getConfig().addDefault("Server.Building.Realistic_Building", true);
+			getConfig().addDefault("Server.Building.Ignored_Blocks", Arrays.asList(
+					"TORCH", 
+					"REDSTONE_TORCH_OFF", 
+					"REDSTONE_TORCH_ON", 
+					"SIGN", 
+					"SIGN_POST", 
+					"WALL_SIGN", 
+					"VINE",
+					"LADDER",
+					"WOOD_BUTTON",
+					"STONE_BUTTON",
+					"FENCE",
+					"WOOD_STEP",
+					"WOOD_DOUBLE_STEP",
+					"DOUBLE_STEP",
+					"DOUBLE_STONE_SLAB2",
+					"PURPUR_DOUBLE_SLAB",
+					"PURPUR_SLAB",
+					"STONE_SLAB2",
+					"LOG",
+					"LOG_2"));
 			getConfig().addDefault("Server.Player.Trail", true);
 			getConfig().addDefault("Server.Player.Path", true);
 			getConfig().addDefault("Server.Player.Allow Fatigue", true);
@@ -234,7 +259,7 @@ public class Main extends JavaPlugin {
 			getConfig().addDefault("Server.Player.Allow /thirst", true);
 			getConfig().addDefault("Server.Player.Spawn with items", true);
 			getConfig().addDefault("Server.Player.Allow Enchanted Arrow", true);
-			getConfig().addDefault("Server.Messages.Not Tired", "&aI don't feel tired anymore..");
+			/*getConfig().addDefault("Server.Messages.Not Tired", "&aI don't feel tired anymore..");
 			getConfig().addDefault("Server.Messages.Too Tired", "&cI'm too tired to do that");
 			getConfig().addDefault("Server.Messages.Tired", "&cI am tired...");
 			getConfig().addDefault("Server.Messages.Very Tired", "&cI am very tired... I should get some sleep.");
@@ -248,7 +273,7 @@ public class Main extends JavaPlugin {
     		getConfig().addDefault("Server.Messages.Hurt", "&c&lI am hurt!");
     		getConfig().addDefault("Server.Messages.Hungry", "&c&lI am hungry! I should really eat something...");
     		getConfig().addDefault("Server.Messages.Should_Sleep", "&cI should sleep in that bed...");
-    		getConfig().addDefault("Server.Messages.Used_Bandage", "&aYou used a bandage, your legs healed!");
+    		getConfig().addDefault("Server.Messages.Used_Bandage", "&aYou used a bandage, your legs healed!");*/
     		getConfig().addDefault("Server.Messages.Respawn", true);
     		getConfig().addDefault("Server.Player.Thirst.Interval", 6000);
     		getConfig().addDefault("Server.Player.Thirst.Enabled", true);
@@ -351,7 +376,7 @@ public class Main extends JavaPlugin {
     				if(b2.contains(Material.FIRE) || b2.contains(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage")) 
     				{
     					pl.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0));
-    					TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+    					TitleManager.sendActionBar(pl, Lang.COSY.getConfigValue(null));
     					getConfig().set("Players.NearFire." + pl.getUniqueId(), true);
     				} else if(!b2.contains(Material.FIRE) || !b2.contains(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage")) {
     					getConfig().set("Players.NearFire." + pl.getUniqueId(), false);
@@ -364,7 +389,8 @@ public class Main extends JavaPlugin {
                     {
                         pl.setSprinting(false);
                         pl.setSneaking(true);
-                        TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Hurt")));
+                        TitleManager.sendTitle(pl, Lang.HURT.getConfigValue(null), "", 100);
+                        TitleManager.sendActionBar(pl, Lang.HURT.getConfigValue(null));
                     }
                     int radius = 4;
                     Location loc = pl.getLocation();
@@ -409,14 +435,14 @@ public class Main extends JavaPlugin {
 	    				if (CurrentThirst <= 100 && CurrentThirst > 0) 
 	    				{
 	    					getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
-	    					pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
-	    					TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
+	    					pl.sendMessage(Lang.GETTING_THIRSTY.getConfigValue(null));
+	    					TitleManager.sendActionBar(pl, Lang.GETTING_THIRSTY.getConfigValue(null));
     						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
 	    				}
 	    				if (CurrentThirst >= 200) 
 	    				{
-    						pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Really Thirsty")));
-    						TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Really Thirsty")));
+    						pl.sendMessage(Lang.REALLY_THIRSTY.getConfigValue(null));
+    						TitleManager.sendActionBar(pl, Lang.REALLY_THIRSTY.getConfigValue(null));
     						pl.damage(3.0);
     						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
     						pl.addPotionEffect((new PotionEffect(PotionEffectType.BLINDNESS, 10, 10)));
@@ -425,8 +451,8 @@ public class Main extends JavaPlugin {
 	    				}
 	    				if (CurrentThirst != 0) continue;
 	    				getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
-	    				pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
-	    				TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
+	    				pl.sendMessage(ChatColor.translateAlternateColorCodes('&', Lang.LITTLE_THIRSTY.getConfigValue(null)));
+	    				TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', Lang.LITTLE_THIRSTY.getConfigValue(null)));
 	    			}
 	    		}
 	    	}
@@ -495,13 +521,13 @@ public class Main extends JavaPlugin {
 	                    float WeightChestPlate;
 	                    if (getConfig().getBoolean("Server.Player.Allow Fatigue")) {
 	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 240) {
-	                            TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Very Tired")));
+	                            TitleManager.sendActionBar(pl, Lang.VERY_TIRED.getConfigValue(null));
 	                            pl.damage(3.0);
 	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
 	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
 	                        }
 	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 150 && getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) <= 200) {
-	                            TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Tired")));
+	                            TitleManager.sendActionBar(pl, Lang.TIRED.getConfigValue(null));
 	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
 	                        }
 	                    }
@@ -518,8 +544,8 @@ public class Main extends JavaPlugin {
 	                                pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
 	                            }
 	                        } else if (pl.getInventory().getBoots() == null && pl.getInventory().getChestplate() == null && !getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) && !getConfig().getBoolean("Players.NearFire." + pl.getUniqueId())) {
-	                            pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cold")));
-	                            TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cold")));
+	                            pl.sendMessage(Lang.COLD.getConfigValue(null));
+	                            TitleManager.sendActionBar(pl, Lang.COLD.getConfigValue(null));
 	                            CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
 	                            getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 10));
 	                            getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.123);
@@ -552,8 +578,8 @@ public class Main extends JavaPlugin {
 	                    WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
 	                    WeightCombined = WeightLeggings + WeightChestPlate;
 	                    pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
-	                    pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
-	                    TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+	                    pl.sendMessage(Lang.COSY.getConfigValue(null));
+	                    TitleManager.sendActionBar(pl, Lang.COSY.getConfigValue(null));
 	                    CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
 	                    getConfig().set("Players.Fatigue." + pl.getUniqueId(), (--CurrentFatigue));
 	                }

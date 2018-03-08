@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 
 public class Thirst implements CommandExecutor {
 	
@@ -32,7 +33,7 @@ public class Thirst implements CommandExecutor {
 			{
 				if(!p.hasPermission("mcr.thirst")) 
 				{
-					p.sendMessage(ChatColor.RED + "You don't have permission to see your thirst.");
+					p.sendMessage(Lang.NO_PERMISSION.getConfigValue(new String[] {"mcr.thirst"}));
 				} else if(getConfig().getBoolean("Server.Player.Allow /thirst")) {
 					p.sendMessage(ChatColor.GOLD + "==== " + ChatColor.DARK_GREEN + "My thirst is: " + ChatColor.GREEN + getConfig().getInt(new StringBuilder("Players.Thirst.").append(p.getUniqueId()).toString()) + "/200" + ChatColor.GOLD + " ====");
 					return true;

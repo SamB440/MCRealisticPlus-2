@@ -7,7 +7,6 @@ package com.SamB440.MCRealistic.listeners;
 
 import java.util.ArrayList;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -19,6 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 
 /*
@@ -44,7 +44,7 @@ public class InteractListener implements Listener {
 				if(p.getInventory().getItemInMainHand().equals(bandage) && getConfig().getBoolean("Players.BoneBroke." + p.getUniqueId()))
 				{
 		            getConfig().set("Players.BoneBroke." + p.getUniqueId(), false);
-		            p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Used_Bandage")));
+		            p.sendMessage(Lang.USED_BANDAGE.getConfigValue(null));
 		            p.getInventory().removeItem(new ItemStack(p.getInventory().getItemInMainHand()));
 		            p.updateInventory();
 				} else if(pie.getAction().equals(Action.RIGHT_CLICK_BLOCK) && pie.getClickedBlock() != null && !pie.getClickedBlock().getType().equals(Material.AIR)) {
@@ -56,8 +56,8 @@ public class InteractListener implements Listener {
 						if(getConfig().getBoolean("Server.Player.Allow Fatigue") && getConfig().getInt("Players.Fatigue." + p.getUniqueId()) != 0)
 						{
 				            getConfig().set("Players.Fatigue." + p.getUniqueId(), 0);
-				            TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Not Tired")));
-				            p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Not Tired")));
+				            TitleManager.sendActionBar(p, Lang.NOT_TIRED.getConfigValue(null));
+				            p.sendMessage(Lang.NOT_TIRED.getConfigValue(null));
 						}
 					}
 				}

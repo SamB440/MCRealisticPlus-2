@@ -5,33 +5,91 @@
  ******************************************************************************/
 package com.SamB440.MCRealistic.listeners;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.logging.Logger;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import com.SamB440.MCRealistic.Main;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+
 /*
  * DONE
  */
 public class JoinListener implements Listener {
 	
+	Logger log = Bukkit.getLogger();
+	String c = "[MCRealistic-2] ";
+	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent pje)
 	{
-		getConfig().set("Players.DefaultWalkSpeed." + pje.getPlayer().getUniqueId(), 0.2);
-		pje.getPlayer().setWalkSpeed((float)getConfig().getDouble("Players.DefaultWalkSpeed." + pje.getPlayer().getUniqueId()));
-		System.out.println(getConfig().getDouble("Players.DefaultWalkSpeed." + pje.getPlayer().getUniqueId()));
-        if (!pje.getPlayer().hasPlayedBefore()) 
+		Player p = pje.getPlayer();
+		getConfig().set("Players.DefaultWalkSpeed." + p.getUniqueId(), 0.2);
+		p.setWalkSpeed((float)getConfig().getDouble("Players.DefaultWalkSpeed." + p.getUniqueId()));
+        if(!p.hasPlayedBefore()) 
         {
-            getConfig().addDefault("Players.Thirst." + pje.getPlayer().getUniqueId(), 0);
-            getConfig().addDefault("Players.RealName." + pje.getPlayer().getUniqueId(), "null");
-            getConfig().addDefault("Players.IsCold." + pje.getPlayer().getUniqueId(), false);
-            getConfig().addDefault("Players.InTorch." + pje.getPlayer().getUniqueId(), false);
-            getConfig().addDefault("Players.Fatigue." + pje.getPlayer().getUniqueId(), 0);
-            getConfig().set("Players.DefaultWalkSpeed." + pje.getPlayer().getUniqueId(), 1);
+            getConfig().addDefault("Players.Thirst." + p.getUniqueId(), 0);
+            getConfig().addDefault("Players.RealName." + p.getUniqueId(), "null");
+            getConfig().addDefault("Players.IsCold." + p.getUniqueId(), false);
+            getConfig().addDefault("Players.InTorch." + p.getUniqueId(), false);
+            getConfig().addDefault("Players.Fatigue." + p.getUniqueId(), 0);
+            getConfig().set("Players.DefaultWalkSpeed." + p.getUniqueId(), 1);
         }
+        if(p.isOp())
+        {
+        	if(!isUpdated())
+        	{
+        		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() 
+        		{
+        			@Override
+        			public void run() {
+        				p.sendMessage(" ");
+    	    		    TextComponent message = new TextComponent(ChatColor.GOLD + "There is a new version for MCRealistic-2 available! Click this message to download it.");
+    	    		    message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to visit the download page.").create()));
+    	    		    message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.spigotmc.org/resources/mcrealistic-2-mcrealisticplus-recoded.21628/updates"));
+    	    		    p.spigot().sendMessage(message);
+    	        		p.sendMessage(" ");
+    	        		p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+        		    }
+        		}, 100L);
+        	}
+        }
+	}
+	private boolean isUpdated()
+	{
+	    try 
+	    {
+	        HttpsURLConnection c = (HttpsURLConnection)new URL("https://www.spigotmc.org/api/general.php").openConnection();
+	        c.setDoOutput(true);
+	        c.setRequestMethod("POST");
+	        c.getOutputStream().write(("key=98BE0FE67F88AB82B4C197FAF1DC3B69206EFDCC4D3B80FC83A00037510B99B4&resource=21628").getBytes("UTF-8"));
+	        String oldVersion = Main.getInstance().getDescription().getVersion();
+	        String newVersion = new BufferedReader(new InputStreamReader(c.getInputStream())).readLine().replaceAll("[a-zA-Z ]", "");
+	        if(!newVersion.equals(oldVersion)) 
+	        {
+	          return false;
+	        }
+	    }
+	    catch(Exception e) {
+	        log.info(c + "Failed to check for updates.");
+	    }
+		return true;
 	}
 	private FileConfiguration getConfig()
 	{

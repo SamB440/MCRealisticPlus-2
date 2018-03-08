@@ -8,7 +8,6 @@ package com.SamB440.MCRealistic.listeners;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.utils.Lang;
 
 public class EntityListener implements Listener {
 	
@@ -28,14 +28,14 @@ public class EntityListener implements Listener {
         if (ede.getEntity() instanceof Player) 
         {
             Player player = (Player)ede.getEntity();
-    		if(worlds.contains(player.getWorld())) 
+    		if(worlds.contains(player.getWorld()) && Main.getInstance().getConfig().getBoolean("Server.Player.Broken_Bones.Enabled")) 
     		{
     			if(!(player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR))) 
     			{
     				if(ede.getCause() == EntityDamageEvent.DamageCause.FALL && player.getFallDistance() >= 7.0f) 
     				{
     					getConfig().set("Players.BoneBroke." + player.getUniqueId(), true);
-    					player.sendMessage(ChatColor.RED + "You fell from a high place and broke your bones!");
+    					player.sendMessage(Lang.BROKEN_BONES.getConfigValue(null));
     					getConfig().set("Players.DefaultWalkSpeed." + player.getPlayer().getUniqueId(), 0.13);
     					float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + player.getUniqueId());
     					float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + player.getUniqueId());
@@ -49,7 +49,7 @@ public class EntityListener implements Listener {
     						{
     							if (getConfig().getBoolean("Players.BoneBroke." + player.getUniqueId())) 
     							{
-    								player.sendMessage(ChatColor.GREEN + "Your legs healed!");
+    								player.sendMessage(Lang.LEGS_HEALED.getConfigValue(null));
     								getConfig().set("Players.DefaultWalkSpeed." + player.getPlayer().getUniqueId(), 0.2);
     								float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + player.getUniqueId());
     								float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + player.getUniqueId());
