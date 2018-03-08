@@ -63,7 +63,7 @@ public class Main extends JavaPlugin {
 	private ArrayList<Player> disease = new ArrayList<Player>();
 	private ArrayList<Player> cold = new ArrayList<Player>();
 	
-    private ConfigWrapper messagesFile = new ConfigWrapper(this, "/lang", "en-gb.yml");
+    private ConfigWrapper messagesFile;
 	
 	@SuppressWarnings("unused")
 	public void onEnable()
@@ -78,7 +78,8 @@ public class Main extends JavaPlugin {
 		}
 		getConfig().options().copyDefaults(true);
 		createConfig();
-        messagesFile.createNewFile("Loading lang/en-gb.yml", "MCRealistic-2 Language File (en-gb)");
+		new ConfigWrapper(this, "/lang", getConfig().getString("Language.Lang") + ".yml");
+        messagesFile.createNewFile("Loading lang/" + getConfig().getString("Language.Lang") + ".yml", "MCRealistic-2 Language File");
         loadMessages();
 		registerListeners();
 		registerRecipes();
@@ -220,6 +221,7 @@ public class Main extends JavaPlugin {
 			header += eol;
 			getConfig().options().header(header);
 			getConfig().addDefault("Worlds", worlds);
+			getConfig().addDefault("Language.Lang", "en-gb");
 			getConfig().addDefault("Server.Weather.WeatherAffectsPlayer", true);
 			getConfig().addDefault("Server.Player.Thirst", true);
 			getConfig().addDefault("Server.Player.DisplayHungerMessage", true);

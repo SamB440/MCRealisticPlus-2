@@ -83,7 +83,7 @@ public class JoinListener implements Listener {
 	        String newVersion = new BufferedReader(new InputStreamReader(c.getInputStream())).readLine().replaceAll("[a-zA-Z ]", "");
 	        if(!newVersion.equals(oldVersion)) 
 	        {
-	          return false;
+	        	return false;
 	        }
 	    }
 	    catch(Exception e) {
