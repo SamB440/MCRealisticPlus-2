@@ -6,6 +6,7 @@
 package com.SamB440.MCRealistic;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -26,14 +28,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import com.SamB440.MCRealistic.utils.ConfigWrapper;
-import com.SamB440.MCRealistic.utils.Lang;
-import com.SamB440.MCRealistic.utils.TitleManager;
+import com.SamB440.MCRealistic.API.Message;
+import com.SamB440.MCRealistic.API.data.MessageType;
 import com.SamB440.MCRealistic.commands.Fatigue;
 import com.SamB440.MCRealistic.commands.MCRealistic;
 import com.SamB440.MCRealistic.commands.MyStats;
@@ -49,6 +51,11 @@ import com.SamB440.MCRealistic.listeners.MoveListener;
 import com.SamB440.MCRealistic.listeners.ProjectileListener;
 import com.SamB440.MCRealistic.listeners.RespawnListener;
 import com.SamB440.MCRealistic.metrics.Metrics;
+import com.SamB440.MCRealistic.utils.ConfigWrapper;
+import com.SamB440.MCRealistic.utils.Lang;
+import com.SamB440.MCRealistic.utils.TitleManager;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 public class Main extends JavaPlugin {
 	
@@ -78,7 +85,7 @@ public class Main extends JavaPlugin {
 		}
 		getConfig().options().copyDefaults(true);
 		createConfig();
-		new ConfigWrapper(this, "/lang", getConfig().getString("Language.Lang") + ".yml");
+		messagesFile = new ConfigWrapper(this, "/lang", getConfig().getString("Language.Lang") + ".yml");
         messagesFile.createNewFile("Loading lang/" + getConfig().getString("Language.Lang") + ".yml", "MCRealistic-2 Language File");
         loadMessages();
 		registerListeners();
@@ -219,6 +226,9 @@ public class Main extends JavaPlugin {
 			header += "Realistic_Building" + eol;
 			header += "  This option defines whether blocks will fall." + eol;
 			header += eol;
+			header += "Messages.Type" + eol;
+			header += "  MESSAGE, ACTIONBAR, TITLE" + eol;
+			header += eol;
 			getConfig().options().header(header);
 			getConfig().addDefault("Worlds", worlds);
 			getConfig().addDefault("Language.Lang", "en-gb");
@@ -276,6 +286,7 @@ public class Main extends JavaPlugin {
     		getConfig().addDefault("Server.Messages.Hungry", "&c&lI am hungry! I should really eat something...");
     		getConfig().addDefault("Server.Messages.Should_Sleep", "&cI should sleep in that bed...");
     		getConfig().addDefault("Server.Messages.Used_Bandage", "&aYou used a bandage, your legs healed!");*/
+			getConfig().addDefault("Server.Messages.Type", "MESSAGE");
     		getConfig().addDefault("Server.Messages.Respawn", true);
     		getConfig().addDefault("Server.Player.Thirst.Interval", 6000);
     		getConfig().addDefault("Server.Player.Thirst.Enabled", true);
@@ -343,6 +354,37 @@ public class Main extends JavaPlugin {
 	    BandageRecipe.setIngredient('%', Material.INK_SACK, 15);
 	    BandageRecipe.setIngredient('B', Material.PAPER);
 	    Bukkit.getServer().addRecipe(BandageRecipe);
+	    
+	    ItemStack chocolate = getSkull("http://textures.minecraft.net/texture/a829b238f2ca2f39f2ce43e316e88e8ddfed524a5dfffefafbe8161dd9f93e9");
+	    ItemMeta cm = chocolate.getItemMeta();
+	    cm.setDisplayName("Chocolate");
+	    chocolate.setItemMeta(cm);
+	    
+	    ShapedRecipe chocolateRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-chocolate"), chocolate);
+	    chocolateRecipe.shape(
+	    		" S ",
+	    		" C ",
+	    		" S ");
+	    
+	    chocolateRecipe.setIngredient('S', Material.SUGAR);
+	    chocolateRecipe.setIngredient('C', Material.COCOA);
+	    Bukkit.getServer().addRecipe(chocolateRecipe);
+	    
+	    ItemStack milkchocolate = getSkull("http://textures.minecraft.net/texture/a829b238f2ca2f39f2ce43e316e88e8ddfed524a5dfffefafbe8161dd9f93e9");
+	    ItemMeta mcm = milkchocolate.getItemMeta();
+	    mcm.setDisplayName("Milk Chocolate");
+	    milkchocolate.setItemMeta(mcm);
+	    
+	    ShapedRecipe milkChocolateRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-milk_chocolate"), milkchocolate);
+	    milkChocolateRecipe.shape(
+	    		" S ",
+	    		"MCM",
+	    		" S ");
+	    
+	    milkChocolateRecipe.setIngredient('S', Material.SUGAR);
+	    milkChocolateRecipe.setIngredient('C', Material.COCOA);
+	    milkChocolateRecipe.setIngredient('M', Material.MILK_BUCKET);
+	    Bukkit.getServer().addRecipe(milkChocolateRecipe);
 	}
 	private void startTasks()
 	{
@@ -378,7 +420,8 @@ public class Main extends JavaPlugin {
     				if(b2.contains(Material.FIRE) || b2.contains(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage")) 
     				{
     					pl.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0));
-    					TitleManager.sendActionBar(pl, Lang.COSY.getConfigValue(null));
+    	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.COSY, null);
+    	        		m.send();
     					getConfig().set("Players.NearFire." + pl.getUniqueId(), true);
     				} else if(!b2.contains(Material.FIRE) || !b2.contains(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage")) {
     					getConfig().set("Players.NearFire." + pl.getUniqueId(), false);
@@ -391,8 +434,8 @@ public class Main extends JavaPlugin {
                     {
                         pl.setSprinting(false);
                         pl.setSneaking(true);
-                        TitleManager.sendTitle(pl, Lang.HURT.getConfigValue(null), "", 100);
-                        TitleManager.sendActionBar(pl, Lang.HURT.getConfigValue(null));
+    	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.HURT, null);
+    	        		m.send();
                     }
                     int radius = 4;
                     Location loc = pl.getLocation();
@@ -437,14 +480,14 @@ public class Main extends JavaPlugin {
 	    				if (CurrentThirst <= 100 && CurrentThirst > 0) 
 	    				{
 	    					getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
-	    					pl.sendMessage(Lang.GETTING_THIRSTY.getConfigValue(null));
-	    					TitleManager.sendActionBar(pl, Lang.GETTING_THIRSTY.getConfigValue(null));
+	    	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.GETTING_THIRSTY, null);
+	    	        		m.send();
     						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
 	    				}
 	    				if (CurrentThirst >= 200) 
 	    				{
-    						pl.sendMessage(Lang.REALLY_THIRSTY.getConfigValue(null));
-    						TitleManager.sendActionBar(pl, Lang.REALLY_THIRSTY.getConfigValue(null));
+	    	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.REALLY_THIRSTY, null);
+	    	        		m.send();
     						pl.damage(3.0);
     						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
     						pl.addPotionEffect((new PotionEffect(PotionEffectType.BLINDNESS, 10, 10)));
@@ -453,8 +496,8 @@ public class Main extends JavaPlugin {
 	    				}
 	    				if (CurrentThirst != 0) continue;
 	    				getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
-	    				pl.sendMessage(ChatColor.translateAlternateColorCodes('&', Lang.LITTLE_THIRSTY.getConfigValue(null)));
-	    				TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', Lang.LITTLE_THIRSTY.getConfigValue(null)));
+		        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.LITTLE_THIRSTY, null);
+		        		m.send();
 	    			}
 	    		}
 	    	}
@@ -521,22 +564,31 @@ public class Main extends JavaPlugin {
 	                    int CurrentFatigue;
 	                    float WeightCombined;
 	                    float WeightChestPlate;
-	                    if (getConfig().getBoolean("Server.Player.Allow Fatigue")) {
-	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 240) {
-	                            TitleManager.sendActionBar(pl, Lang.VERY_TIRED.getConfigValue(null));
+	                    if (getConfig().getBoolean("Server.Player.Allow Fatigue")) 
+	                    {
+	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 240) 
+	                        {
+	        	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.VERY_TIRED, null);
+	        	        		m.send();
 	                            pl.damage(3.0);
 	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
 	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
 	                        }
-	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 150 && getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) <= 200) {
-	                            TitleManager.sendActionBar(pl, Lang.TIRED.getConfigValue(null));
+	                        if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 150 && getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) <= 200) 
+	                        {
+	        	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.TIRED, null);
+	        	        		m.send();
 	                            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
 	                        }
 	                    }
-	                    if (!getConfig().getBoolean("Server.Weather.WeatherAffectsPlayer") && !(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR))) continue;
-	                    if (pl.getWorld().hasStorm()) {
-	                        if (pl.getInventory().getBoots() != null && pl.getInventory().getChestplate() != null) {
-	                            if (!getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) {
+	                    if (!getConfig().getBoolean("Server.Weather.WeatherAffectsPlayer")) continue;
+	                    
+	                    if (pl.getWorld().hasStorm()) 
+	                    {
+	                        if (pl.getInventory().getBoots() != null && pl.getInventory().getChestplate() != null) 
+	                        {
+	                            if (!getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) 
+	                            {
 	                                getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
 	                                WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
 	                                WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
@@ -546,8 +598,8 @@ public class Main extends JavaPlugin {
 	                                pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
 	                            }
 	                        } else if (pl.getInventory().getBoots() == null && pl.getInventory().getChestplate() == null && !getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) && !getConfig().getBoolean("Players.NearFire." + pl.getUniqueId())) {
-	                            pl.sendMessage(Lang.COLD.getConfigValue(null));
-	                            TitleManager.sendActionBar(pl, Lang.COLD.getConfigValue(null));
+	        	        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.COLD, null);
+	        	        		m.send();
 	                            CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
 	                            getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 10));
 	                            getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.123);
@@ -559,7 +611,8 @@ public class Main extends JavaPlugin {
 	                            pl.damage(3.0);
 	                        }
 	                    }
-	                    if (!pl.getWorld().hasStorm() && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) {
+	                    if (!pl.getWorld().hasStorm() && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) 
+	                    {
 	                        getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
 	                        getConfig().set("Players.IsCold." + pl.getUniqueId(), false);
 	                        WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
@@ -567,7 +620,8 @@ public class Main extends JavaPlugin {
 	                        WeightCombined = WeightLeggings + WeightChestPlate;
 	                        pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
 	                    }
-	                    if (!getConfig().getBoolean("Players.IsCold." + pl.getUniqueId()) && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) {
+	                    if (!getConfig().getBoolean("Players.IsCold." + pl.getUniqueId()) && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) 
+	                    {
 	                        getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
 	                        WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
 	                        WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
@@ -575,13 +629,14 @@ public class Main extends JavaPlugin {
 	                        pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
 	                    }
 	                    if (!getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) || !pl.getWorld().hasStorm() || getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) continue;
+	                    
 	                    getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
 	                    WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
 	                    WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
 	                    WeightCombined = WeightLeggings + WeightChestPlate;
 	                    pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
-	                    pl.sendMessage(Lang.COSY.getConfigValue(null));
-	                    TitleManager.sendActionBar(pl, Lang.COSY.getConfigValue(null));
+		        		Message m = new Message(pl, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.COSY, null);
+		        		m.send();
 	                    CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
 	                    getConfig().set("Players.Fatigue." + pl.getUniqueId(), (--CurrentFatigue));
 	                }
@@ -615,5 +670,29 @@ public class Main extends JavaPlugin {
 			}
 		}
 		return blocks;
+	}
+	private ItemStack getSkull(String url) 
+	{
+        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        if(url.isEmpty())
+        {
+        	return head;
+        }
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
+        Field profileField = null;
+        try 
+        {
+            profileField = headMeta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(headMeta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) 
+        {
+            e1.printStackTrace();
+        }
+        head.setItemMeta(headMeta);
+		return head;
 	}
 }

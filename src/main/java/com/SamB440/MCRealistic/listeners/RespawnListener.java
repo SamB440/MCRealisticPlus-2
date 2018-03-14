@@ -74,4 +74,12 @@ public class RespawnListener implements Listener {
 		firstnames = fn;
 		lastnames = ln;
 	}
+	public static ArrayList<String> getFirstNames()
+	{
+		return firstnames;
+	}
+	public static ArrayList<String> getLastNames()
+	{
+		return lastnames;
+	}
 }

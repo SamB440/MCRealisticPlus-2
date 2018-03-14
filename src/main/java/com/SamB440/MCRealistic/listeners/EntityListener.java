@@ -17,6 +17,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.API.Message;
+import com.SamB440.MCRealistic.API.data.MessageType;
 import com.SamB440.MCRealistic.utils.Lang;
 
 public class EntityListener implements Listener {
@@ -35,7 +37,8 @@ public class EntityListener implements Listener {
     				if(ede.getCause() == EntityDamageEvent.DamageCause.FALL && player.getFallDistance() >= 7.0f) 
     				{
     					getConfig().set("Players.BoneBroke." + player.getUniqueId(), true);
-    					player.sendMessage(Lang.BROKEN_BONES.getConfigValue(null));
+    	        		Message m = new Message(player, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.BROKEN_BONES, null);
+    	        		m.send();
     					getConfig().set("Players.DefaultWalkSpeed." + player.getPlayer().getUniqueId(), 0.13);
     					float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + player.getUniqueId());
     					float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + player.getUniqueId());
@@ -49,7 +52,8 @@ public class EntityListener implements Listener {
     						{
     							if (getConfig().getBoolean("Players.BoneBroke." + player.getUniqueId())) 
     							{
-    								player.sendMessage(Lang.LEGS_HEALED.getConfigValue(null));
+    				        		Message m = new Message(player, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.LEGS_HEALED, null);
+    				        		m.send();
     								getConfig().set("Players.DefaultWalkSpeed." + player.getPlayer().getUniqueId(), 0.2);
     								float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + player.getUniqueId());
     								float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + player.getUniqueId());

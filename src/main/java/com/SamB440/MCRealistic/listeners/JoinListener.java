@@ -8,6 +8,7 @@ package com.SamB440.MCRealistic.listeners;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -51,6 +52,16 @@ public class JoinListener implements Listener {
             getConfig().addDefault("Players.Fatigue." + p.getUniqueId(), 0);
             getConfig().set("Players.DefaultWalkSpeed." + p.getUniqueId(), 1);
         }
+        String[] FirstArray = RespawnListener.getFirstNames().toArray(new String[20]);
+        Random random1 = new Random();
+        int randomFirstId = random1.nextInt(FirstArray.length);
+        String[] LastArray = RespawnListener.getLastNames().toArray(new String[20]);
+        Random random2 = new Random();
+        int randomLastId = random2.nextInt(LastArray.length);
+        Random random3 = new Random();
+        int randomAge = random3.nextInt(50);
+        getConfig().set("Players.RealName." + p.getUniqueId(), String.valueOf(String.valueOf(FirstArray[randomFirstId])) + " " + LastArray[randomLastId]);
+        getConfig().set("Players.RealAge." + p.getUniqueId(), randomAge + 15);
         if(p.isOp())
         {
         	if(!isUpdated())

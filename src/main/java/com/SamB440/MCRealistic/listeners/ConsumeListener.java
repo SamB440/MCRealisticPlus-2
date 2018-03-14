@@ -21,6 +21,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.SamB440.MCRealistic.Main;
+import com.SamB440.MCRealistic.API.Message;
+import com.SamB440.MCRealistic.API.data.MessageType;
 import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 
@@ -40,8 +42,8 @@ public class ConsumeListener implements Listener {
 	        	if (pice.getItem() != null && pice.getItem().getType() != null && p != null && pice.getItem().hasItemMeta() && pice.getItem().getType().equals(Material.POTION)) 
 	        	{
 	        		getConfig().set("Players.Thirst." + p.getUniqueId(), 0);
-	        		p.sendMessage(Lang.NOT_THIRSTY.getConfigValue(null));
-	        		TitleManager.sendActionBar(p, Lang.NOT_THIRSTY.getConfigValue(null));
+	        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.NOT_THIRSTY, null);
+	        		m.send();
 	        		int CurrentFatigue = this.getConfig().getInt("Players.Fatigue." + p.getUniqueId());
 	        		getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue -= 2));
         			if(pice.getItem().getItemMeta().getDisplayName() != null && pice.getItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Medicine") && pice.getItem().getItemMeta().getLore().equals(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"))) 
