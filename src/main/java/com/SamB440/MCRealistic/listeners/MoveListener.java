@@ -6,6 +6,7 @@
 package com.SamB440.MCRealistic.listeners;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -49,16 +50,18 @@ public class MoveListener implements Listener {
 			if(!(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
 			{
 				ApplicableRegionSet r = WGBukkit.getRegionManager(p.getWorld()).getApplicableRegions(p.getLocation());
-				if(p.isOnGround() && getConfig().getBoolean("Server.Player.Trail") && r.getRegions().size() == 0) 
+				if(p.isOnGround() && getConfig().getBoolean("Server.Player.Trail.Enabled") && r.getRegions().size() == 0) 
 				{           			
 					p.getWorld().playEffect(trail, Effect.FOOTSTEP, 1);
 					if(randomNum == 3 && b.getType().equals(Material.GRASS) && getConfig().getBoolean("Server.Player.Path")) 
 					{
-						b.setType(Material.DIRT);
-					} else if(randomNum == 5 && b.getType().equals(Material.GRASS) && getConfig().getBoolean("Server.Player.Path")) {
-						b.setType(Material.GRASS_PATH);
+						List<String> g = getConfig().getStringList("Server.Player.Trail.Grass_Blocks");
+						Material m = Material.valueOf(g.get(new Random().nextInt(g.size())));
+						b.setType(m);
 					} else if(randomNum == 1 && b.getType().equals(Material.SAND) && getConfig().getBoolean("Server.Player.Path")) {
-						b.setType(Material.SANDSTONE);
+						List<String> s = getConfig().getStringList("Server.Player.Trail.Sand_Blocks");
+						Material m = Material.valueOf(s.get(new Random().nextInt(s.size())));
+						b.setType(m);
 					}
 				}
 				if ((double)p.getWalkSpeed() > getConfig().getDouble("Players.DefaultWalkSpeed." + p.getUniqueId())) 

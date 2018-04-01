@@ -261,7 +261,12 @@ public class Main extends JavaPlugin {
 					"STONE_SLAB2",
 					"LOG",
 					"LOG_2"));
-			getConfig().addDefault("Server.Player.Trail", true);
+			getConfig().addDefault("Server.Player.Trail.Grass_Blocks", Arrays.asList(
+					"DIRT",
+					"GRASS_PATH"));
+			getConfig().addDefault("Server.Player.Trail.Sand_Blocks", Arrays.asList(
+					"SANDSTONE"));
+			getConfig().addDefault("Server.Player.Trail.Enabled", true);
 			getConfig().addDefault("Server.Player.Path", true);
 			getConfig().addDefault("Server.Player.Allow Fatigue", true);
 			getConfig().addDefault("Server.Player.Allow Chop Down Trees With Hands", false);
@@ -271,6 +276,7 @@ public class Main extends JavaPlugin {
 			getConfig().addDefault("Server.Player.Allow /thirst", true);
 			getConfig().addDefault("Server.Player.Spawn with items", true);
 			getConfig().addDefault("Server.Player.Allow Enchanted Arrow", true);
+			getConfig().addDefault("Server.Player.Torch_Burn", true);
 			/*getConfig().addDefault("Server.Messages.Not Tired", "&aI don't feel tired anymore..");
 			getConfig().addDefault("Server.Messages.Too Tired", "&cI'm too tired to do that");
 			getConfig().addDefault("Server.Messages.Tired", "&cI am tired...");
@@ -396,11 +402,14 @@ public class Main extends JavaPlugin {
             @Override
             public void run() 
             {
-                for (Player p : Bukkit.getOnlinePlayers()) 
-                {
-                    if (!burn.contains(p.getUniqueId())) continue;
-                    p.setFireTicks(20);
-                }
+        		if(getConfig().getBoolean("Server.Player.Torch_Burn"))
+        		{
+	                for (Player p : Bukkit.getOnlinePlayers()) 
+	                {
+	                    if (!burn.contains(p.getUniqueId())) continue;
+	                    p.setFireTicks(20);
+	                }
+        		}
             }
         }, 0L, 20L);
         /*

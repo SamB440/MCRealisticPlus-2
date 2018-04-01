@@ -92,7 +92,7 @@ public class BlockListener implements Listener {
 	        		m.send();
 		            bbe.setCancelled(true);
 		        }
-		        if (block.getType().equals(Material.LOG) || block.getType().equals(Material.LOG_2)) 
+		        else if (block.getType().equals(Material.LOG) || block.getType().equals(Material.LOG_2)) 
 		        {
 		            if (p.getInventory().getItemInMainHand().getType().equals(Material.AIR) && !getConfig().getBoolean("Server.Player.Allow Chop Down Trees With Hands")) 
 		            {
@@ -102,25 +102,25 @@ public class BlockListener implements Listener {
 		            }
 		            if ((p.getInventory().getItemInMainHand().getType().equals(Material.WOOD_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.IRON_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.STONE_AXE)) && getConfig().getBoolean("Server.Player.Trees have random number of drops")) 
 		            {
-		                int CurrentFatigue2;
+		                //int CurrentFatigue2;
 		                Random random5 = new Random();
 		                int randomTreeChop = random5.nextInt(2);
 		                if (randomTreeChop == 0) 
 		                {
 		                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
-		                    CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-		                    getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue2));
+		                    //CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
+		                    //getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue2++));
 		                }
 		                if (randomTreeChop == 1) 
 		                {
 		                	bbe.setDropItems(false);
-		                    CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-		                    getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue2));
+		                    //CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
+		                    //getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue2++));
 		                }
 		                if (randomTreeChop == 2) 
 		                {
-		                    CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-		                    getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue2));
+		                    //CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
+		                    //getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue2++));
 		                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
 		                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
 		                }
