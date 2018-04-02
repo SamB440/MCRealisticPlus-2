@@ -46,11 +46,18 @@ public class BlockListener implements Listener {
 	{
 		Player p = bpe.getPlayer();
 		Block block = bpe.getBlock();
-		if(worlds.contains(p.getWorld())) 
+		if(worlds.contains(p.getWorld()) && p.getGameMode().equals(GameMode.SURVIVAL)) 
 		{
+        	if (getConfig().getInt("Players.Fatigue." + bpe.getPlayer().getUniqueId()) >= 250 && block.getType() != Material.BED && block.getType() != Material.BED_BLOCK) 
+        	{
+        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.TOO_TIRED, null);
+        		m.send();
+        		bpe.setCancelled(true);
+        		return;
+        	}
 	        int CurrentFatigue = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
 	        getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue));
-			if (getConfig().getBoolean("Server.Building.Realistic_Building") && p.getGameMode().equals(GameMode.SURVIVAL)) 
+			if (getConfig().getBoolean("Server.Building.Realistic_Building")) 
 			{
 	        	if (p.getInventory().getItemInMainHand().hasItemMeta()) {
 	        		return;
@@ -67,12 +74,6 @@ public class BlockListener implements Listener {
 	    		loc.getWorld().spawnFallingBlock(loc, block.getType(), block.getData());
 	    		block.setType(Material.AIR);
 			}
-        	if (getConfig().getInt("Players.Fatigue." + bpe.getPlayer().getUniqueId()) >= 250 && block.getType() != Material.BED && block.getType() != Material.BED_BLOCK) 
-        	{
-        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.TOO_TIRED, null);
-        		m.send();
-        		bpe.setCancelled(true);
-        	}	
 		}
 	}
 	@EventHandler
@@ -80,71 +81,56 @@ public class BlockListener implements Listener {
 	{
 		Player p = bbe.getPlayer();
         Block block = bbe.getBlock();
-		if(worlds.contains(p.getWorld())) 
+		if(worlds.contains(p.getWorld()) && p.getGameMode().equals(GameMode.SURVIVAL))
 		{
-	        int CurrentFatigue = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-	        getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue));
-	        if(!(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
-	        {        	
-		        if (getConfig().getInt("Players.Fatigue." + p.getUniqueId()) >= 250) 
-		        {
-	        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.TOO_TIRED, null);
-	        		m.send();
-		            bbe.setCancelled(true);
-		        }
-		        else if (block.getType().equals(Material.LOG) || block.getType().equals(Material.LOG_2)) 
-		        {
-		            if (p.getInventory().getItemInMainHand().getType().equals(Material.AIR) && !getConfig().getBoolean("Server.Player.Allow Chop Down Trees With Hands")) 
-		            {
-		        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.NO_HAND_CHOP, null);
-		        		m.send();
-		                bbe.setCancelled(true);
-		            }
-		            if ((p.getInventory().getItemInMainHand().getType().equals(Material.WOOD_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.IRON_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.STONE_AXE)) && getConfig().getBoolean("Server.Player.Trees have random number of drops")) 
-		            {
-		                //int CurrentFatigue2;
-		                Random random5 = new Random();
-		                int randomTreeChop = random5.nextInt(2);
-		                if (randomTreeChop == 0) 
-		                {
-		                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
-		                    //CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-		                    //getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue2++));
-		                }
-		                if (randomTreeChop == 1) 
-		                {
-		                	bbe.setDropItems(false);
-		                    //CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-		                    //getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue2++));
-		                }
-		                if (randomTreeChop == 2) 
-		                {
-		                    //CurrentFatigue2 = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
-		                    //getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue2++));
-		                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
-		                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
-		                }
-		            }
-		        } else if(!p.getInventory().getItemInMainHand().getType().equals(Material.SHEARS) && block.getType().equals(Material.LEAVES) || block.getType().equals(Material.LEAVES_2)) {
-		        	Random r = new Random();
-		        	int randomFruit = r.nextInt(3);
-		        	ItemStack banana = getSkull("http://textures.minecraft.net/texture/ce8a3b3d9f89df1f3b996cce89c0f722b3dfa34c2ec2a5b9038010e0dd1ae");
-		        	BlockState s = block.getState();
-		        	s.update();
-		        	TreeSpecies species = ((Leaves)s.getData()).getSpecies();
-		        	if(randomFruit == 0 || randomFruit == 2)
-		        	{
-		        		if(species.equals(TreeSpecies.JUNGLE)) p.getWorld().dropItem(block.getLocation(), banana);
-		        	}
-		        }
-		        if (getConfig().getInt("Players.Fatigue." + p.getUniqueId()) >= 250) 
-		        {
-	        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.TOO_TIRED, null);
-	        		m.send();
-		            bbe.setCancelled(true);
-		        }
+	        if (getConfig().getInt("Players.Fatigue." + p.getUniqueId()) >= 250) 
+	        {
+        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.TOO_TIRED, null);
+        		m.send();
+	            bbe.setCancelled(true);
+	            return;
 	        }
-		}
+	        int CurrentFatigue = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
+	        getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue));     	
+	        if(block.getType().equals(Material.LOG) || block.getType().equals(Material.LOG_2)) 
+	        {
+	            if (p.getInventory().getItemInMainHand().getType().equals(Material.AIR) && !getConfig().getBoolean("Server.Player.Allow Chop Down Trees With Hands")) 
+	            {
+	        		Message m = new Message(p, MessageType.valueOf(getConfig().getString("Server.Messages.Type")), Lang.NO_HAND_CHOP, null);
+	        		m.send();
+	                bbe.setCancelled(true);
+	            }
+	            if ((p.getInventory().getItemInMainHand().getType().equals(Material.WOOD_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.IRON_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_AXE) || p.getInventory().getItemInMainHand().getType().equals(Material.STONE_AXE)) && getConfig().getBoolean("Server.Player.Trees have random number of drops")) 
+	            {
+	                Random random5 = new Random();
+	                int randomTreeChop = random5.nextInt(2);
+	                if (randomTreeChop == 0) 
+	                {
+	                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
+	                }
+	                if (randomTreeChop == 1) 
+	                {
+	                	bbe.setDropItems(false);
+	                }
+	                if (randomTreeChop == 2) 
+	                {
+	                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
+	                    p.getWorld().dropItem(block.getLocation(), new ItemStack(block.getType()));
+	                }
+	            }
+	        } /*else if(!p.getInventory().getItemInMainHand().getType().equals(Material.SHEARS) && block.getType().equals(Material.LEAVES) || block.getType().equals(Material.LEAVES_2)) {
+	        	Random r = new Random();
+	        	int randomFruit = r.nextInt(3);
+	        	ItemStack banana = getSkull("http://textures.minecraft.net/texture/ce8a3b3d9f89df1f3b996cce89c0f722b3dfa34c2ec2a5b9038010e0dd1ae");
+	        	BlockState s = block.getState();
+	        	s.update();
+	        	TreeSpecies species = ((Leaves)s.getData()).getSpecies();
+	        	if(randomFruit == 0 || randomFruit == 2)
+	        	{
+	        		if(species.equals(TreeSpecies.JUNGLE)) p.getWorld().dropItem(block.getLocation(), banana);
+	        	}
+	        }*/
+        }
 	}
 	private FileConfiguration getConfig()
 	{
