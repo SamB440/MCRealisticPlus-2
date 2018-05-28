@@ -20,9 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.SamB440.MCRealistic.Main;
 
-/*
- * DONE
- */
+
 public class RespawnListener implements Listener {
 	
 	ArrayList<World> worlds = Main.getInstance().getWorlds();

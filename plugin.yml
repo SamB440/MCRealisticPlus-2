@@ -3,8 +3,9 @@ main: com.SamB440.MCRealistic.Main
 author: SamB440
 authors: [c0mputex, CitadelCraft, markrasher123, zackerykr & AssassinsKeeper, CheB440, Chazmondo]
 website: http://www.islandearth.net
-depend: [WorldGuard]
-version: 2.0.3
+depend: [WorldGuard, WorldEdit]
+softdepend: [PlaceholderAPI]
+version: 2.0.4
 commands:
   MCRealistic: 
      description: MCRealistic commands

@@ -51,24 +51,29 @@ import com.SamB440.MCRealistic.listeners.MoveListener;
 import com.SamB440.MCRealistic.listeners.ProjectileListener;
 import com.SamB440.MCRealistic.listeners.RespawnListener;
 import com.SamB440.MCRealistic.metrics.Metrics;
+import com.SamB440.MCRealistic.placeholders.Placeholders;
+import com.SamB440.MCRealistic.tasks.StaminaTask;
+import com.SamB440.MCRealistic.tasks.TorchTask;
 import com.SamB440.MCRealistic.utils.ConfigWrapper;
 import com.SamB440.MCRealistic.utils.Lang;
 import com.SamB440.MCRealistic.utils.TitleManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
+import lombok.Getter;
+
 public class Main extends JavaPlugin {
 	
-	private static Main instance;
+	@Getter private static Main instance;
 	
 	String c = "[MCRealistic-2] ";
 	
 	Logger log = Bukkit.getLogger();
 	
-	private ArrayList<World> worlds = new ArrayList<World>();
-	private ArrayList<UUID> burn = new ArrayList<UUID>();
-	private ArrayList<Player> disease = new ArrayList<Player>();
-	private ArrayList<Player> cold = new ArrayList<Player>();
+	@Getter private ArrayList<World> worlds = new ArrayList<World>();
+	@Getter ArrayList<UUID> burning = new ArrayList<UUID>();
+	@Getter private ArrayList<Player> diseases = new ArrayList<Player>();
+	@Getter private ArrayList<Player> colds = new ArrayList<Player>();
 	
     private ConfigWrapper messagesFile;
 	
@@ -76,13 +81,8 @@ public class Main extends JavaPlugin {
 	public void onEnable()
 	{
 		instance = this;
-		if(Bukkit.getPluginManager().getPlugin("WorldGuard") != null) 
-		{
-			log.info(c + "WorldGuard found!");
-		} else if(Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
-			log.info(c + "WorldGuard not found, disabling!");
-			Bukkit.getServer().getPluginManager().disablePlugin(this);
-		}
+		hookPlugins();
+		
 		getConfig().options().copyDefaults(true);
 		createConfig();
 		messagesFile = new ConfigWrapper(this, "/lang", getConfig().getString("Language.Lang") + ".yml");
@@ -92,6 +92,7 @@ public class Main extends JavaPlugin {
 		registerRecipes();
 		registerCommands();
 		startTasks();
+		
 		ArrayList<String> firstnames = new ArrayList<String>();
         firstnames.add("Mark");
         firstnames.add("Daniel");
@@ -113,6 +114,7 @@ public class Main extends JavaPlugin {
         firstnames.add("Justin");
         firstnames.add("Harry");
         firstnames.add("Howard");
+        
 		ArrayList<String> lastnames = new ArrayList<String>();
         lastnames.add("Hawking");
         lastnames.add("Potter");
@@ -135,13 +137,16 @@ public class Main extends JavaPlugin {
         lastnames.add("Baker");
         lastnames.add("Kelly");
 		RespawnListener.addNames(firstnames, lastnames);
+		
 		ArrayList<Material> ignore = new ArrayList<Material>();
 		for(String s : getConfig().getStringList("Server.Building.Ignored_Blocks"))
 		{
 			Material m = Material.valueOf(s);
 			ignore.add(m);
 		}
+		
 		BlockListener.addBlocks(ignore);
+		
 		Metrics metrics = new Metrics(this);
 		log.info(c + "Started metrics. Opt-out using global bStats config.");
         for(String s : getConfig().getStringList("Worlds"))
@@ -149,12 +154,13 @@ public class Main extends JavaPlugin {
         	World w = Bukkit.getWorld(s);
         	worlds.add(w);
         }
-        System.out.println(worlds);
 	}
+	
 	public void onDisable()
 	{
 		instance = null;
 	}
+	
 	private void loadMessages() 
 	{
         Lang.setFile(messagesFile.getConfig());
@@ -166,14 +172,26 @@ public class Main extends JavaPlugin {
         messagesFile.getConfig().options().copyDefaults(true);
         messagesFile.saveConfig();
 	}
-	public static Main getInstance()
+	
+	private void hookPlugins()
 	{
-		return instance;
+		if(Bukkit.getPluginManager().getPlugin("WorldGuard") != null) 
+		{
+			log.info(c + "WorldGuard found!");
+		} else {
+			log.info(c + "WorldGuard not found, disabling!");
+			Bukkit.getServer().getPluginManager().disablePlugin(this);
+		}
+		
+		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+		{
+			log.info(c + "PlaceholderAPI found!");
+			new Placeholders(this).register();
+		} else {
+			log.info(c + "PlaceholderAPI not found!");
+		}
 	}
-	public ArrayList<World> getWorlds()
-	{
-        return worlds;
-	}
+	
 	private void registerListeners()
 	{
 		PluginManager pm = Bukkit.getPluginManager();
@@ -182,12 +200,13 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new RespawnListener(), this);
 		pm.registerEvents(new ProjectileListener(), this);
 		pm.registerEvents(new BlockListener(), this);
-		pm.registerEvents(new MoveListener(), this);
+		pm.registerEvents(new MoveListener(this), this);
 		pm.registerEvents(new ConsumeListener(), this);
 		pm.registerEvents(new InventoryListener(), this);
 		pm.registerEvents(new FoodChangeListener(), this);
 		pm.registerEvents(new EntityListener(), this);
 	}
+	
 	private void createConfig()
 	{
     	File file = new File("plugins/MCRealistic-2/config.yml");
@@ -234,6 +253,7 @@ public class Main extends JavaPlugin {
 			getConfig().addDefault("Language.Lang", "en-gb");
 			getConfig().addDefault("Server.Weather.WeatherAffectsPlayer", true);
 			getConfig().addDefault("Server.Player.Thirst", true);
+			getConfig().addDefault("Server.Stamina.Enabled", true);
 			getConfig().addDefault("Server.Player.DisplayHungerMessage", true);
 			getConfig().addDefault("Server.Player.DisplayCozyMessage", true);
 			getConfig().addDefault("Server.Player.DisplayHurtMessage", true);
@@ -287,7 +307,7 @@ public class Main extends JavaPlugin {
     		getConfig().addDefault("Server.Messages.Getting Thirsty", "&cI am getting thirsty...");
     		getConfig().addDefault("Server.Messages.Really Thirsty", "&c&l&nI am really thirsty.. I should drink some water.");
     		getConfig().addDefault("Server.Messages.Cozy", "&2I feel cozy..");
-    		getConfig().addDefault("Server.Messages.Cold", "&c&nI am cold, I should wear some clothes. (Armour)");
+    		getConfig().addDefault("Server.Messages.colds", "&c&nI am colds, I should wear some clothes. (Armour)");
     		getConfig().addDefault("Server.Messages.Hurt", "&c&lI am hurt!");
     		getConfig().addDefault("Server.Messages.Hungry", "&c&lI am hungry! I should really eat something...");
     		getConfig().addDefault("Server.Messages.Should_Sleep", "&cI should sleep in that bed...");
@@ -303,6 +323,7 @@ public class Main extends JavaPlugin {
     		System.out.println(c + "Created & saved config!");
     	}
 	}
+	
 	private void registerCommands()
 	{
 		getCommand("thirst").setExecutor(new Thirst());
@@ -310,13 +331,14 @@ public class Main extends JavaPlugin {
 		getCommand("mcrealistic").setExecutor(new MCRealistic());
 		getCommand("mystats").setExecutor(new MyStats());
 	}
+	
 	@SuppressWarnings("deprecation")
 	private void registerRecipes()
 	{
 		ItemStack medicine = new ItemStack(Material.POTION, 2);
 		ItemMeta medicinemeta = medicine.getItemMeta();
 		medicinemeta.setDisplayName(ChatColor.GREEN + "Medicine");
-		medicinemeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to help fight your cold/disease!"));
+		medicinemeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to help fight your colds/disease!"));
 		medicine.setItemMeta(medicinemeta);
 		
 		ShapedRecipe medicinecraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-medicine"), medicine);
@@ -392,26 +414,12 @@ public class Main extends JavaPlugin {
 	    milkChocolateRecipe.setIngredient('M', Material.MILK_BUCKET);
 	    Bukkit.getServer().addRecipe(milkChocolateRecipe);
 	}
+	
 	private void startTasks()
 	{
-		/*
-		 * TORCH FIRE
-		 */
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
-        {
-            @Override
-            public void run() 
-            {
-        		if(getConfig().getBoolean("Server.Player.Torch_Burn"))
-        		{
-	                for (Player p : Bukkit.getOnlinePlayers()) 
-	                {
-	                    if (!burn.contains(p.getUniqueId())) continue;
-	                    p.setFireTicks(20);
-	                }
-        		}
-            }
-        }, 0L, 20L);
+		if(getConfig().getBoolean("Server.Stamina.Enabled")) Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new StaminaTask(this), 0, 60);
+		if(getConfig().getBoolean("Server.Player.Torch_Burn")) Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new TorchTask(this), 0, 20);
+		
         /*
          * FATIGUE
          */
@@ -525,7 +533,7 @@ public class Main extends JavaPlugin {
 	    			{
 	    				int random = new Random().nextInt(getServer().getOnlinePlayers().size());
 	    				Player p = (Player) getServer().getOnlinePlayers().toArray()[random];
-	    				if(p.hasPermission("mcr.getcold") && disease.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+	    				if(p.hasPermission("mcr.getcolds") && diseases.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
 		    			{
     						TitleManager.sendTitle(p, "", ChatColor.RED + "The disease begins to damage your body...", 200);
     						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
@@ -534,24 +542,24 @@ public class Main extends JavaPlugin {
     						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0));
     						p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 0));
 		    			}
-    					else if(p.hasPermission("mcr.getcold") && cold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+    					else if(p.hasPermission("mcr.getcolds") && colds.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
     					{
-    						cold.remove(p);
-    						disease.add(p);
-    						TitleManager.sendTitle(p, "", ChatColor.RED + "Your cold developed into a disease!", 200);
+    						colds.remove(p);
+    						diseases.add(p);
+    						TitleManager.sendTitle(p, "", ChatColor.RED + "Your colds developed into a disease!", 200);
     						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
     						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 600, 0));
     						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0));
     						TitleManager.sendActionBar(p, ChatColor.GREEN + "" + ChatColor.BOLD + "TIP:" + ChatColor.WHITE + " Use medicine to fight the disease!");
     					}
-    					else if(p.hasPermission("mcr.getcold") && !cold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+    					else if(p.hasPermission("mcr.getcolds") && !colds.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
     					{
-    						cold.add(p);
-    						TitleManager.sendTitle(p, "", ChatColor.RED + "You have caught a cold!", 200);
+    						colds.add(p);
+    						TitleManager.sendTitle(p, "", ChatColor.RED + "You have caught a colds!", 200);
     						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
     						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3000, 0));
     						p.damage(2);
-							TitleManager.sendActionBar(p, ChatColor.GREEN + "" + ChatColor.BOLD + "TIP:" + ChatColor.WHITE + " Use medicine to fight the cold!");
+							TitleManager.sendActionBar(p, ChatColor.GREEN + "" + ChatColor.BOLD + "TIP:" + ChatColor.WHITE + " Use medicine to fight the colds!");
     					}
 		    		}
 	    		}
@@ -603,7 +611,7 @@ public class Main extends JavaPlugin {
 	                                WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
 	                                WeightCombined = WeightLeggings + WeightChestPlate;
 	                                pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
-	                                getConfig().set("Players.IsCold." + pl.getUniqueId(), false);
+	                                getConfig().set("Players.Iscolds." + pl.getUniqueId(), false);
 	                                pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
 	                            }
 	                        } else if (pl.getInventory().getBoots() == null && pl.getInventory().getChestplate() == null && !getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) && !getConfig().getBoolean("Players.NearFire." + pl.getUniqueId())) {
@@ -616,20 +624,20 @@ public class Main extends JavaPlugin {
 	                            float WeightChestPlate2 = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
 	                            float WeightCombined2 = WeightLeggings2 + WeightChestPlate2;
 	                            pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined2 * 0.01f)));
-	                            getConfig().set("Players.IsCold." + pl.getUniqueId(), true);
+	                            getConfig().set("Players.Iscolds." + pl.getUniqueId(), true);
 	                            pl.damage(3.0);
 	                        }
 	                    }
 	                    if (!pl.getWorld().hasStorm() && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) 
 	                    {
 	                        getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
-	                        getConfig().set("Players.IsCold." + pl.getUniqueId(), false);
+	                        getConfig().set("Players.Iscolds." + pl.getUniqueId(), false);
 	                        WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
 	                        WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + pl.getUniqueId());
 	                        WeightCombined = WeightLeggings + WeightChestPlate;
 	                        pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
 	                    }
-	                    if (!getConfig().getBoolean("Players.IsCold." + pl.getUniqueId()) && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) 
+	                    if (!getConfig().getBoolean("Players.Iscolds." + pl.getUniqueId()) && !getConfig().getBoolean("Players.BoneBroke." + pl.getUniqueId())) 
 	                    {
 	                        getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.2);
 	                        WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + pl.getUniqueId());
@@ -653,18 +661,7 @@ public class Main extends JavaPlugin {
             }
         }, 0, 400);
 	}
-	public ArrayList<UUID> getBurning()
-	{
-		return burn;
-	}
-	public ArrayList<Player> getDiseases()
-	{
-		return disease;
-	}
-	public ArrayList<Player> getColds()
-	{
-		return cold;
-	}
+	
 	private List<Block> getNearbyBlocks(Location location, int radius) 
 	{
 		List<Block> blocks = new ArrayList<Block>();
@@ -680,6 +677,7 @@ public class Main extends JavaPlugin {
 		}
 		return blocks;
 	}
+	
 	private ItemStack getSkull(String url) 
 	{
         ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
@@ -687,20 +685,21 @@ public class Main extends JavaPlugin {
         {
         	return head;
         }
+        
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
         byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
         profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
         Field profileField = null;
-        try 
-        {
+        
+        try {
             profileField = headMeta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             profileField.set(headMeta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) 
-        {
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
             e1.printStackTrace();
         }
+        
         head.setItemMeta(headMeta);
 		return head;
 	}

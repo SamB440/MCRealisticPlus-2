@@ -20,9 +20,7 @@ import com.SamB440.MCRealistic.Main;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 
-/*
- * DONE
- */
+
 public class ProjectileListener implements Listener {
 	
 	ArrayList<World> worlds = Main.getInstance().getWorlds();

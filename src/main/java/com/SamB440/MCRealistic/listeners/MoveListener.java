@@ -28,8 +28,16 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 
 public class MoveListener implements Listener {
 	
-	ArrayList<World> worlds = Main.getInstance().getWorlds();
-	ArrayList<UUID> burn = Main.getInstance().getBurning();
+	Main plugin;
+	ArrayList<World> worlds;
+	ArrayList<UUID> burn;
+	
+	public MoveListener(Main plugin)
+	{
+		this.plugin = plugin;
+		this.worlds = plugin.getWorlds();
+		this.burn = plugin.getBurning();
+	}
 	
 	@SuppressWarnings("deprecation")
 	@EventHandler
@@ -64,26 +72,27 @@ public class MoveListener implements Listener {
 						b.setType(m);
 					}
 				}
+				
 				if ((double)p.getWalkSpeed() > getConfig().getDouble("Players.DefaultWalkSpeed." + p.getUniqueId())) 
 				{
 					p.setWalkSpeed((float)getConfig().getDouble("Players.DefaultWalkSpeed." + p.getUniqueId()));
 				}
+				
 				if (p.getLocation().getBlock().getType() == Material.TORCH) 
 				{
 					if (!burn.contains(p.getUniqueId())) {
 						burn.add(p.getUniqueId());
 					}
-				} 
-				else if (burn.contains(p.getUniqueId())) 
-				{
+				} else if (burn.contains(p.getUniqueId())) {
 					p.setFireTicks(0);
 					burn.remove(p.getUniqueId());
 				}
 			}
 		}
 	}
+	
 	private FileConfiguration getConfig()
 	{
-		return Main.getInstance().getConfig();
+		return plugin.getConfig();
 	}
 }
