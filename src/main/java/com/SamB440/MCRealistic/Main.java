@@ -341,7 +341,7 @@ public class Main extends JavaPlugin {
 		medicinemeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to help fight your colds/disease!"));
 		medicine.setItemMeta(medicinemeta);
 		
-		ShapedRecipe medicinecraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-medicine"), medicine);
+		ShapedRecipe medicinecraft = new ShapedRecipe(medicine);
 			medicinecraft.shape(
 				"   ",
 				" B ",
@@ -358,7 +358,7 @@ public class Main extends JavaPlugin {
 		chocolatemilkmeta.setLore(Arrays.asList(ChatColor.WHITE + "Drink to gain Speed II."));
 		chocolatemilk.setItemMeta(chocolatemilkmeta);
 		
-		ShapedRecipe chocolatemilkcraft = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-chocolate_milk"), chocolatemilk);
+		ShapedRecipe chocolatemilkcraft = new ShapedRecipe(chocolatemilk);
 			chocolatemilkcraft.shape(
 			    "   ",
 			    "CBC",
@@ -373,7 +373,7 @@ public class Main extends JavaPlugin {
 		bm.setDisplayName(ChatColor.DARK_AQUA + "Bandage");
 	    bandage.setItemMeta(bm);
 	    
-	    ShapedRecipe BandageRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-bandage"), bandage);
+	    ShapedRecipe BandageRecipe = new ShapedRecipe(bandage);
 	    BandageRecipe.shape(
 	    		"   ", 
 	    		" B ", 
@@ -388,7 +388,7 @@ public class Main extends JavaPlugin {
 	    cm.setDisplayName("Chocolate");
 	    chocolate.setItemMeta(cm);
 	    
-	    ShapedRecipe chocolateRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-chocolate"), chocolate);
+	    ShapedRecipe chocolateRecipe = new ShapedRecipe(chocolate);
 	    chocolateRecipe.shape(
 	    		" S ",
 	    		" C ",
@@ -403,7 +403,7 @@ public class Main extends JavaPlugin {
 	    mcm.setDisplayName("Milk Chocolate");
 	    milkchocolate.setItemMeta(mcm);
 	    
-	    ShapedRecipe milkChocolateRecipe = new ShapedRecipe(new NamespacedKey(this, getDescription().getName() + "-milk_chocolate"), milkchocolate);
+	    ShapedRecipe milkChocolateRecipe = new ShapedRecipe(milkchocolate);
 	    milkChocolateRecipe.shape(
 	    		" S ",
 	    		"MCM",
